@@ -1,0 +1,778 @@
+#SIHSUS - Sistema de Informações Hospitalares do SUS (DATASUS)
+#https://datasus.saude.gov.br/transferencia-de-arquivos/
+
+#Seleção do diretorio dos dados
+setwd("~/Documentos/Banco de dados/Dados/")
+
+#Seleção de pacotes
+library(read.dbc) #pacote para leitura de arquivos.dbc
+library(foreign) #pacote para manipulação de arquivos.dbf
+library(dplyr) #pacote para manipulação de tabelas
+library(tidyverse) #pacote para manipulação de tabelas
+library(lubridate) #pacote para manipulação de datas
+library(xda) #pacote para análises estatísticas descritivas
+library(gt) #pacote para definição de tabelas
+library(gtsummary) #pacote para definição de tabelas
+library(ggplot2) #pacote para definição de gráficos
+library(ggsci) #pacote para definição de gráficos
+library(ggpubr) #pacote para definição de gráficos
+library(ggthemes) #pacote para definição de gráficos
+library(patchwork) #pacote para definição de gráficos
+
+#Definição para o tipo de numeração dos dados
+options(scipen = 999) #números não científicos
+options(digits=4) #formatação para duas casas decimais
+
+#Carregamento dos dados
+d200801 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG0801.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, #data da internação
+         PROC_REA, #procedimento realizado
+         MUNIC_RES, #município de residência
+         DIAG_PRINC, #diagnóstico principal
+         COBRANCA, #motivo da entrava e saída
+         IDADE, #idade
+         CBOR, #CBO
+         CNAER, #CNAE
+         VINCPREV, #vínculo com a previdência social %>%
+         SEXO) %>% 
+  filter(IDADE >= 15) %>% 
+  filter(MUNIC_RES %in% "310000":"319999") 
+d200802 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG0802.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d200803 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG0803.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d200804 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG0804.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d200805 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG0805.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d200806 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG0806.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d200807 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG0807.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d200808 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG0808.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d200809 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG0809.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d200810 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG0810.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d200811 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG0811.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d200812 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG0812.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d200901 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG0901.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d200902 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG0902.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d200903 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG0903.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d200904 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG0904.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d200905 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG0905.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d200906 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG0906.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d200907 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG0907.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d200908 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG0908.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d200909 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG0909.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d200910 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG0910.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d200911 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG0911.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d200912 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG0912.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201001 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1001.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201002 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1002.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201003 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1003.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201004 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1004.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201005 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1005.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201006 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1006.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201007 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1007.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201008 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1008.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201009 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1009.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201010 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1010.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201011 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1011.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201012 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1012.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201101 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1101.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201102 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1102.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201103 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1103.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201104 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1104.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201105 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1105.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201106 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1106.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201107 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1107.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201108 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1108.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201109 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1109.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201110 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1110.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201111 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1111.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201112 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1112.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201201 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1201.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201202 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1202.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201203 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1203.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201204 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1204.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201205 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1205.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201206 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1206.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201207 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1207.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201208 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1208.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201209 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1209.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201210 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1210.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201211 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1211.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201212 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1212.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201301 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1301.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201302 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1302.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201303 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1303.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201304 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1304.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201305 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1305.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201306 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1306.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201307 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1307.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201308 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1308.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201309 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1309.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201310 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1310.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201311 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1311.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201312 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1312.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201401 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1401.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201402 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1402.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201403 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1403.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201404 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1404.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201405 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1405.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201406 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1406.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201407 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1407.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201408 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1408.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201409 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1409.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201410 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1410.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201411 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1411.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201412 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1412.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201501 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1501.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201502 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1502.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201503 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1503.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201504 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1504.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201505 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1505.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201506 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1506.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201507 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1507.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201508 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1508.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201509 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1509.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201510 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1510.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201511 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1511.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201512 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1512.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201601 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1601.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201602 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1602.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201603 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1603.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201604 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1604.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201605 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1605.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201606 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1606.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201607 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1607.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201608 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1608.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201609 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1609.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201610 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1610.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201611 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1611.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201612 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1612.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201701 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1701.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201702 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1702.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201703 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1703.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201704 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1704.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201705 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1705.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201706 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1706.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201707 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1707.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201708 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1708.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201709 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1709.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201710 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1710.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201711 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1711.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201712 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1712.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201801 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1801.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201802 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1802.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201803 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1803.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201804 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1804.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201805 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1805.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201806 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1806.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201807 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1807.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201808 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1808.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201809 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1809.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201810 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1810.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201811 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1811.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201812 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1812.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201901 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1901.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201902 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1902.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201903 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1903.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201904 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1904.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201905 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1905.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201906 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1906.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201907 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1907.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201908 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1908.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201909 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1909.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201910 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1910.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201911 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1911.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d201912 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG1912.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d202001 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG2001.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d202002 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG2002.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d202003 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG2003.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d202004 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG2004.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d202005 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG2005.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d202006 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG2006.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d202007 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG2007.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d202008 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG2008.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d202009 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG2009.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d202010 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG2010.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d202011 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG2011.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d202012 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG2012.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d202101 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG2101.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d202102 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG2102.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d202103 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG2103.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d202104 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG2104.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d202105 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG2105.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d202106 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG2106.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d202107 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG2107.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d202108 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG2108.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d202109 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG2109.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d202110 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG2110.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d202111 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG2111.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d202112 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG2112.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+d202201 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG2201.dbc", as.is = TRUE) %>% 
+  select(DT_INTER, PROC_REA, MUNIC_RES, DIAG_PRINC, COBRANCA, IDADE, CBOR, CNAER, VINCPREV, SEXO) %>% 
+  filter(IDADE >= 15 ) %>% 
+  filter(MUNIC_RES %in% "310000":"319999")
+
+#apresentação dos dados totais
+dtotais <- bind_rows(d200801,d200802,d200803,d200804,d200805,d200806,d200807,d200808,d200809,d200810,d200811,d200812,
+                     d200901,d200902,d200903,d200904,d200905,d200906,d200907,d200908,d200909,d200910,d200911,d200912,
+                     d201001,d201002,d201003,d201004,d201005,d201006,d201007,d201008,d201009,d201010,d201011,d201012,
+                     d201101,d201102,d201103,d201104,d201105,d201106,d201107,d201108,d201109,d201110,d201111,d201112,
+                     d201201,d201202,d201203,d201204,d201205,d201206,d201207,d201208,d201209,d201210,d201211,d201212,
+                     d201301,d201302,d201303,d201304,d201305,d201306,d201307,d201308,d201309,d201310,d201311,d201312,
+                     d201401,d201402,d201403,d201404,d201405,d201406,d201407,d201408,d201409,d201410,d201411,d201412,
+                     d201501,d201502,d201503,d201504,d201505,d201506,d201507,d201508,d201509,d201510,d201511,d201512,
+                     d201601,d201602,d201603,d201604,d201605,d201606,d201607,d201608,d201609,d201610,d201611,d201612,
+                     d201701,d201702,d201703,d201704,d201705,d201706,d201707,d201708,d201709,d201710,d201711,d201712,
+                     d201801,d201802,d201803,d201804,d201805,d201806,d201807,d201808,d201809,d201810,d201811,d201812,
+                     d201901,d201902,d201903,d201904,d201905,d201906,d201907,d201908,d201909,d201910,d201911,d201912,
+                     d202001,d202002,d202003,d202004,d202005,d202006,d202007,d202008,d202009,d202010,d202011,d202012,
+                     d202101,d202102,d202103,d202104,d202105,d202106,d202107,d202108,d202109,d202110,d202111,d202112,
+                     d202201) %>%
+  mutate(DT_INTER = substr(DT_INTER, 1,4)) %>% 
+  mutate(PROC_REA = substr(PROC_REA, 1,2)) %>%
+  mutate(DT_INTER = as.numeric(DT_INTER)) %>% 
+  rename("ANO" = DT_INTER, "CODGRUP" = PROC_REA, "CIDSUBCAT" = DIAG_PRINC, "CODMUN" = MUNIC_RES, "CODCOBR" = COBRANCA, 
+         "CODVINCPREV" = VINCPREV, "CODOCUP" = CBOR, "CODCNAE" = CNAER) 
+
+#Codificação e adequação dos dados a partir do dicionário de variáveis
+dtotais$CODGRUP <- factor(dtotais$CODGRUP, levels = c("01","02","03","04","05","06","07","08"), labels = c("Ações de promoção e prevenção em saúde", "Procedimentos com finalidade diagnóstica","Procedimentos clínicos", "Procedimentos cirúrgicos", "Transplantes de orgãos, tecidos e células","Medicamentos","Órteses, próteses e materiais especiais", "Ações complementares da atenção à saúde"))
+dtotais$CODVINCPREV <- factor(dtotais$CODVINCPREV, levels = c("1","2","3","4","5","6","9"), labels = c("Não classificado", "Autônomo","Desempregado", "Aposentado", "Não segurado","Empregado","Empregador"))
+dtotais$SEXO <- factor(dtotais$SEXO, levels = c("1","2","3"), labels = c("Masculino", "Feminino","Ignorado")) 
+
+#Carregamento de arquivos para definição dos dados
+#DATASUS
+MG <- read.csv2(file = "Ministério da Saúde/Tabulação/MGMRSMUN.csv", sep = ";", colClasses = "character")
+CID10 <- read.csv(file = "Ministério da Saúde/Tabulação/CID10.csv", sep = ";", colClasses = "character") 
+COBRANCA <- read.csv(file = "Ministério da Saúde/Tabulação/SAIDAPERM.csv", sep = ";", colClasses = "character") 
+OCUP <- read.csv(file = "Ministério da Saúde/Tabulação/CBO2002.csv", sep = ";", colClasses = "character") 
+CNAE <- read.csv(file = "Ministério da Saúde/Tabulação/CNAE.csv", sep = ";", colClasses = "character") 
+POPMG <- read.csv("Ministério da Saúde/Tabulação/MGPOPEST.csv", sep =  ";") %>% 
+  gather(key = "ANO", value = "POP1559", c(-COD, -LOCAL)) %>%  
+  mutate(ANO = substr(ANO, 2,5)) %>%
+  mutate(ANO = as_date(as.character(ANO), format = "%Y")) %>% 
+  mutate(ANO = as.numeric(year(ANO))) %>% 
+  mutate(COD = as.character(COD)) %>% 
+  mutate_if(is.character, str_squish)
+POPVACO <- read.csv("Ministério da Saúde/Tabulação/MGPOPEST.csv", sep =  ";") %>% 
+  gather(key = "ANO", value = "POP1559", c(-COD, -LOCAL)) %>%  
+  mutate(ANO = substr(ANO, 2,5)) %>% 
+  mutate(ANO = as_date(as.character(ANO), format = "%Y")) %>% 
+  mutate(ANO = as.numeric(year(ANO))) %>% 
+  mutate(COD = as.character(COD)) %>% 
+  filter(COD == "313130" | COD == "316870" | COD == "311940") %>% 
+  group_by(ANO) %>% 
+  summarise(POP1559 = sum(POP1559)) %>% 
+  mutate(LOCAL = "Vale do Aço") %>% 
+  mutate_if(is.character, str_squish)
+
+#Delimitação da base de dados para os estudos
+BASE <- dtotais %>% 
+  left_join(MG, "CODMUN") %>% 
+  left_join(CID10, "CIDSUBCAT") %>% 
+  left_join(COBRANCA, "CODCOBR") %>% 
+  left_join(OCUP, "CODOCUP") %>% 
+  left_join(CNAE, "CODCNAE") %>% 
+  mutate_if(is.character, str_squish)
+BASE 
+
+#Conferência dos dados
+summary(BASE$SEXO)
+charSummary(BASE)
