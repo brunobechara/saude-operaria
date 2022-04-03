@@ -6,34 +6,29 @@ setwd("~/Documentos/Banco de dados/Dados/")
 
 #Seleção de pacotes
 library(read.dbc) #pacote para leitura de arquivos.dbc
-library(foreign) #pacote para manipulação de arquivos.dbf
 library(dplyr) #pacote para manipulação de tabelas
 library(tidyverse) #pacote para manipulação de tabelas
 library(lubridate) #pacote para manipulação de datas
-library(xda) #pacote para análises estatísticas descritivas
 library(gt) #pacote para definição de tabelas
 library(gtsummary) #pacote para definição de tabelas
 library(ggplot2) #pacote para definição de gráficos
-library(ggsci) #pacote para definição de gráficos
-library(ggpubr) #pacote para definição de gráficos
-library(ggthemes) #pacote para definição de gráficos
 library(patchwork) #pacote para definição de gráficos
 
 #Definição para o tipo de numeração dos dados
 options(scipen = 999) #números não científicos
 options(digits=4) #formatação para duas casas decimais
 
-#Carregamento dos dados
+#Carregamento dos dados e definição das variáveis
 d200801 <- read.dbc("Ministério da Saúde/SIH/Dados/RDMG0801.dbc", as.is = TRUE) %>% 
-  select(DT_INTER, #data da internação
-         PROC_REA, #procedimento realizado
-         MUNIC_RES, #município de residência
-         DIAG_PRINC, #diagnóstico principal
-         COBRANCA, #motivo da entrava e saída
-         IDADE, #idade
-         CBOR, #CBO
-         CNAER, #CNAE
-         VINCPREV, #vínculo com a previdência social %>%
+  select(DT_INTER,
+         PROC_REA, 
+         MUNIC_RES,
+         DIAG_PRINC, 
+         COBRANCA, 
+         IDADE, 
+         CBOR,
+         CNAER,
+         VINCPREV,
          SEXO) %>% 
   filter(IDADE >= 15) %>% 
   filter(MUNIC_RES %in% "310000":"319999") 
