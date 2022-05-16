@@ -1,0 +1,705 @@
+#A taxa do mais-valor no setor siderúrgico e na Usiminas
+
+#Fontes dos dados
+
+#IBGE, Diretoria de Pesquisas, Coordenação de Indústria, Pesquisa Industrial Anual - Empresa 30 ou mais pessoas ocupadas
+#PIA Empresa
+#Dados a partir de 2007 - CNAE 2.0:
+#Tabelas
+#7241	Emprego, salário e encargos das empresas industriais com 30 ou mais pessoas ocupadas, segundo as divisões, os grupos e as classes de atividades - Brasil
+#7242	Estrutura da receita das empresas industriais com 30 ou mais pessoas ocupadas, segundo as divisões, os grupos e as classes de atividades - Brasil
+#7243	Estrutura do investimento das empresas industriais com 30 ou mais pessoas ocupadas, segundo as divisões, os grupos e as classes de atividades - Brasil
+#7244	Estrutura do valor da transformação e do valor adicionado das empresas industriais com 30 ou mais pessoas ocupadas, segundo as divisões, os grupos e as classes de atividades - Brasil
+#7245	Estrutura dos custos e despesas das empresas industriais com 30 ou mais pessoas ocupadas, segundo as divisões, os grupos e as classes de atividades - Brasil
+#Obs. A partir do ano de 2016, os dados foram coletados diretamente da base de dados SIDRA-IBGE (#https://sidra.ibge.gov.br/pesquisa/Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/tabelas/brasil/2019)
+#Em Mil Reais
+
+#USIMINAS
+#Relatório da Administração USIMINAS
+#Demonstrações do valor adicionado
+#Dados a partir de 2001
+#Em milhares de reais
+
+#Seleção do armazenamento dos dados
+setwd("~/Documentos/Banco de dados/Dados/")
+
+#Pacotes utilizados
+library(readxl)
+library(dplyr)
+library(tidyverse)
+library(lubridate)
+library(sidrar)
+library(ggplot2)
+library(ggthemes)
+library(scales)
+
+#IBGE
+#Preparação dos dados
+#7241	Emprego, salário e encargos das empresas industriais com 30 ou mais pessoas ocupadas, segundo as divisões, os grupos e as classes de atividades - Brasil
+tab724107 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2007/2007/01completo/01empresa/tab101.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2007")
+tab724108 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2008/2008/01completo/01empresa/tab101.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2008")
+tab724109 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2009/2009/01completo/01empresa/tab101.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2009") 
+tab724110 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2010/2010/01completo/01empresa/tab101.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2010")
+tab724111 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2011/2011/01completo/01empresa/tab101.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2011") 
+tab724112 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/tabelas_2012/2012/01completo/01empresa/tab101.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2012") 
+tab724113 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/tabelas_2013/2013/01completo/01empresa/tab101.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2013") 
+tab724114 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/tabelas_2014/2014/01completo/01empresa/tab101.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2014") 
+tab724115 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/tabelas_2015/01completo/01empresa/Tabela 101.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2015") 
+
+tab7241xls <- bind_rows(tab724107,tab724108,tab724109,tab724110,tab724111,tab724112,tab724113,tab724114,tab724115) %>% 
+  mutate(...1 = "24.2 Siderurgia") %>% 
+  select(-...2, -...17) %>% 
+  rename("Classificação Nacional de Atividades Econômicas (CNAE 2.0)" = ...1,
+         "Número de empresas" = ...3,
+         "Pessoal ocupado em 31/12" = ...4,
+         "Pessoal ocupado assalariado ligado à produção em 31/12" = ...5,
+         "Pessoal ocupado assalariado não ligado à produção em 31/12" = ...6,
+         "Pessoal ocupado não-assalariado - proprietários e sócios - em 31/12" = ...7,
+         "Total de salários, retiradas e outras remunerações" = ...8,
+         "Salários, retiradas e outras remunerações de pessoal assalariado ligado à produção" = ...9,
+         "Salários, retiradas e outras remunerações de pessoal assalariado não-ligado à produção" = ...10,
+         "Salários, retiradas e outras remunerações de pessoal não-assalariado - proprietários, sócios" = ...11,
+         "Gastos com pessoal - contribuições para a previdência social" = ...12,
+         "Gastos com pessoal - FGTS" = ...13,
+         "Gastos com pessoal - contribuições para a previdência privada"= ...14,
+         "Gastos com pessoal - indenizações trabalhistas" = ...15,
+         "Gastos com pessoal - benefícios concedidos aos empregados" = ...16)
+         
+tab7241sidra <- get_sidra(api = "/t/7241/n1/all/v/all/p/all/c12762/117120") %>% 
+  select(Ano, Variável, "Classificação Nacional de Atividades Econômicas (CNAE 2.0)", Valor) %>% 
+  spread(Variável, Valor)
+
+tab7241 <- bind_rows(tab7241xls, tab7241sidra)
+
+#7242	Estrutura da receita das empresas industriais com 30 ou mais pessoas ocupadas, segundo as divisões, os grupos e as classes de atividades - Brasil
+tab724207 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2007/2007/01completo/01empresa/tab102.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2007")
+tab724208 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2008/2008/01completo/01empresa/tab102.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2008")
+tab724209 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2009/2009/01completo/01empresa/tab102.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2009")
+tab724210 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2010/2010/01completo/01empresa/tab102.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2010")
+
+tab7242xlsa <- bind_rows(tab724207,tab724208,tab724209,tab724210) %>% 
+  mutate(...1 = "24.2 Siderurgia") %>% 
+  select(-...2, -...19) %>% 
+  rename("Classificação Nacional de Atividades Econômicas (CNAE 2.0)" = ...1,
+         "Número de empresas" = ...3,
+         "Receita bruta - Total" = ...4,
+         "Receita bruta de vendas de produtos industriais" = ...5,
+         "Receita bruta de revenda de mercadorias" = ...6,
+         "Receita bruta de prestações de serviços não industriais, de transporte e de atividades agropastoris" = ...7,
+         "Deduções - Total " = ...8,
+         "Deduções - PIS/PASEP" = ...9,
+         "Receita líquida de vendas" = ...10,
+         "Receitas operacionais - total" = ...11,
+         "Receitas por arrendamento e aluguéis de imóveis e equipamentos" = ...12,
+         "Receitas financeiras" = ...13,
+         "Variações monetárias ativas" = ...14,
+         "Total dos resultados positivos em participações societárias e em sociedades em cota de participação" = ...15,
+         "Demais receitas operacionais" = ...16,
+         "Receitas não-operacionais" = ...17,
+         "Receita total" = ...18) 
+
+tab724211 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2011/2011/01completo/01empresa/tab102.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2011")
+tab724212 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/tabelas_2012/2012/01completo/01empresa/tab102.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2012")
+tab724213 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/tabelas_2013/2013/01completo/01empresa/tab102.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2013")
+tab724214 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/tabelas_2014/2014/01completo/01empresa/tab102.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2014")
+tab724215 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/tabelas_2015/01completo/01empresa/Tabela 102.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2015")
+
+tab7242xlsb <- bind_rows(tab724211,tab724212,tab724213,tab724214,tab724215) %>% 
+  mutate(...1 = "24.2 Siderurgia") %>% 
+  select(-...2, -...22) %>% 
+  rename("Classificação Nacional de Atividades Econômicas (CNAE 2.0)" = ...1,
+         "Número de empresas" = ...3,
+         "Receita bruta - Total" = ...4,
+         "Receita bruta de vendas de produtos industriais" = ...5,
+         "Receita bruta de revenda de mercadorias" = ...6,
+         "Receita bruta de prestações de serviços não industriais, de transporte e de atividades agropastoris" = ...7,
+         "Deduções - Total " = ...8,
+         "Deduções - vendas canceladas" = ...9,
+         "Deduções - ICMS" = ...10,
+         "Deduções - Demais impostos" = ...11,
+         "Deduções - PIS/PASEP" = ...12,
+         "Receita líquida de vendas" = ...13,
+         "Receitas operacionais - total" = ...14,
+         "Receitas por arrendamento e aluguéis de imóveis e equipamentos" = ...15,
+         "Receitas financeiras" = ...16,
+         "Variações monetárias ativas" = ...17,
+         "Total dos resultados positivos em participações societárias e em sociedades em cota de participação" = ...18,
+         "Demais receitas operacionais" = ...19,
+         "Receitas não-operacionais" = ...20,
+         "Receita total" = ...21) 
+
+tab7242xls <- bind_rows(tab7242xlsa, tab7242xlsb)
+
+tab7242sidra <- get_sidra(api = "/t/7242/n1/all/v/all/p/all/c12762/117120") %>% 
+  select(Ano, Variável, "Classificação Nacional de Atividades Econômicas (CNAE 2.0)", Valor) %>% 
+  spread(Variável, Valor)
+         
+tab7242 <- bind_rows(tab7242xls, tab7242sidra)
+
+#7243	Estrutura do investimento das empresas industriais com 30 ou mais pessoas ocupadas, segundo as divisões, os grupos e as classes de atividades - Brasil
+tab724307 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2007/2007/01completo/01empresa/tab106.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2007")
+tab724308 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2008/2008/01completo/01empresa/tab106.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2008")
+tab724309 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2009/2009/01completo/01empresa/tab106.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2009")
+tab724310 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2010/2010/01completo/01empresa/tab106.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2010")
+tab724311 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2011/2011/01completo/01empresa/tab106.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2011")
+tab724312 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/tabelas_2012/2012/01completo/01empresa/tab106.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2012")
+tab724313 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/tabelas_2013/2013/01completo/01empresa/tab106.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2013")
+tab724314 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/tabelas_2014/2014/01completo/01empresa/tab106.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2014")
+tab724315 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/tabelas_2015/01completo/01empresa/Tabela 106.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2015")
+
+tab7243xls <- bind_rows(tab724307,tab724308,tab724309,tab724310,tab724311,tab724312,tab724313,tab724314,tab724315) %>% 
+  mutate(...1 = "24.2 Siderurgia") %>% 
+  select(-...2, -...23) %>% 
+  rename("Classificação Nacional de Atividades Econômicas (CNAE 2.0)" = ...1,
+         "Número de empresas" = ...3,
+         "Ativo total" = ...4,
+         "Ativo imobilizado - aquisições - número de informantes" = ...5,
+         "Ativo imobilizado - aquisições - valor" = ...6,
+         "Ativo imobilizado - aquisições de terceiros e produção própria - terrenos e edificações" = ...7,
+         "Ativo imobilizado - aquisições de terceiros e produção própria - máquinas e equipamentos" = ...8,
+         "Ativo imobilizado - aquisições de terceiros e produção própria - meios de transporte" = ...9,
+         "Ativo imobilizado - outras aquisições" = ...10,
+         "Ativo imobilizado - melhorias - número de informantes" = ...11,
+         "Ativo imobilizado - melhorias - valor" = ...12,
+         "Ativo imobilizado - melhorias - terrenos e edificações" = ...13,
+         "Ativo imobilizado - melhorias - máquinas e equipamentos" = ...14,
+         "Ativo imobilizado - melhorias - meios de transporte" = ...15,
+         "Ativo imobilizado - outras melhorias" = ...16,
+         "Ativo imobilizado - baixas - número de informantes" = ...17,
+         "Ativo imobilizado - baixas - valor" = ...18,
+         "Ativo imobilizado - baixas - terrenos e edificações" = ...19,
+         "Ativo imobilizado - baixas - máquinas e equipamentos" = ...20,
+         "Ativo imobilizado - baixas - meios de transporte" = ...21,
+         "Ativo imobilizado - outras baixas" = ...22) 
+         
+tab7243sidra <- get_sidra(api = "/t/7243/n1/all/v/all/p/all/c12762/117120") %>% 
+  select(Ano, Variável, "Classificação Nacional de Atividades Econômicas (CNAE 2.0)", Valor) %>% 
+  spread(Variável, Valor)
+
+tab7243 <- bind_rows(tab7243xls, tab7243sidra)
+
+#7244 Estrutura do valor da transformação e do valor adicionado das empresas industriais com 30 ou mais pessoas ocupadas, segundo as divisões, os grupos e as classes de atividades - Brasil
+tab724407a <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2007/2007/01completo/01empresa/tab104.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2007")
+tab724408a <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2008/2008/01completo/01empresa/tab104.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2008")
+tab724409a <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2009/2009/01completo/01empresa/tab104.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2009")
+tab724410a <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2010/2010/01completo/01empresa/tab104.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2010")
+tab724411a <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2011/2011/01completo/01empresa/tab104.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2011")
+tab724412a <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/tabelas_2012/2012/01completo/01empresa/tab104.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2012")
+tab724413a <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/tabelas_2013/2013/01completo/01empresa/tab104.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2013")
+tab724414a <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/tabelas_2014/2014/01completo/01empresa/tab104.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2014")
+tab724415a <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/tabelas_2015/01completo/01empresa/Tabela 104.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2015")
+
+tab7244xlsa <- bind_rows(tab724407a,tab724408a,tab724409a,tab724410a,tab724411a,tab724412a,tab724413a,tab724414a,tab724415a) %>% 
+  mutate(...1 = "24.2 Siderurgia") %>% 
+  select(-...2) %>% 
+  rename("Classificação Nacional de Atividades Econômicas (CNAE 2.0)" = ...1,
+         "Número de empresas" = ...3,
+         "Receita líquida de vendas - total" = ...4,
+         "Valor bruto da produção industrial" = ...5,
+         "Custos das operações industriais" = ...6,
+         "Valor da transformação industrial" = ...7) 
+
+tab724407b <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2007/2007/01completo/01empresa/tab105.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2007") %>% 
+  select(-...7)
+tab724408b <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2008/2008/01completo/01empresa/tab105.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2008")
+tab724409b <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2009/2009/01completo/01empresa/tab105.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2009")
+tab724410b <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2010/2010/01completo/01empresa/tab105.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2010")
+tab724411b <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2011/2011/01completo/01empresa/tab105.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2011")
+tab724412b <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/tabelas_2012/2012/01completo/01empresa/tab105.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2012")
+tab724413b <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/tabelas_2013/2013/01completo/01empresa/tab105.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2013")
+tab724414b <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/tabelas_2014/2014/01completo/01empresa/tab105.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2014")
+tab724415b <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/tabelas_2015/01completo/01empresa/Tabela 105.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2015")
+
+tab7244xlsb <- bind_rows(tab724407b,tab724408b,tab724409b,tab724410b,tab724411b,tab724412b,tab724413b,tab724414b,tab724415b) %>% 
+  mutate(...1 = "24.2 Siderurgia") %>% 
+  select(-...2) %>% 
+  rename("Classificação Nacional de Atividades Econômicas (CNAE 2.0)" = ...1,
+         "Número de empresas" = ...3,
+         "Valor bruto da produção" = ...4,
+         "Consumo intermediário - total" = ...5,
+         "Valor adicionado" = ...6) 
+
+tab7244xls <- bind_cols(tab7244xlsa, tab7244xlsb) %>% 
+  select(-`Número de empresas...9`, -Ano...7, -`Classificação Nacional de Atividades Econômicas (CNAE 2.0)...8`) %>% 
+  rename("Número de empresas" = `Número de empresas...2`, "Ano" = Ano...13, "Classificação Nacional de Atividades Econômicas (CNAE 2.0)" = `Classificação Nacional de Atividades Econômicas (CNAE 2.0)...1`)
+         
+tab7244sidra <- get_sidra(api = "/t/7244/n1/all/v/all/p/all/c12762/117120") %>% 
+  select(Ano, Variável, "Classificação Nacional de Atividades Econômicas (CNAE 2.0)", Valor) %>% 
+  spread(Variável, Valor)
+
+tab7244 <- bind_rows(tab7244xls, tab7244sidra)
+
+#7245	Estrutura dos custos e despesas das empresas industriais com 30 ou mais pessoas ocupadas, segundo as divisões, os grupos e as classes de atividades - Brasil
+tab724507 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2007/2007/01completo/01empresa/tab103.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2007")
+tab724508 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2008/2008/01completo/01empresa/tab103.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2008")
+tab724509 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2009/2009/01completo/01empresa/tab103.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2009")
+tab724510 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2010/2010/01completo/01empresa/tab103.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2010")
+tab724511 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/cnae_2_0_2011/2011/01completo/01empresa/tab103.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2011")
+tab724512 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/tabelas_2012/2012/01completo/01empresa/tab103.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2012")
+tab724513 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/tabelas_2013/2013/01completo/01empresa/tab103.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2013")
+tab724514 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/tabelas_2014/2014/01completo/01empresa/tab103.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2014")
+tab724515 <- read_xls("Instituto Brasileiro de Geografia e Estatística/PIA-Empresa/tabelas_2015/01completo/01empresa/Tabela 103.xls", col_names = FALSE, col_types = "numeric", progress = readxl_progress(), .name_repair = "unique") %>% 
+  filter(...1 == "24.2") %>% 
+  mutate(Ano = "2015")
+
+tab7245xls <- bind_rows(tab724507,tab724508,tab724509,tab724510,tab724511,tab724512,tab724513,tab724514,tab724515) %>% 
+  mutate(...1 = "24.2 Siderurgia") %>% 
+  select(-...2, -...18, -...19, -...20, -...21, -...37, -...38, -...39, -...44) %>% 
+  rename("Classificação Nacional de Atividades Econômicas (CNAE 2.0)" = ...1,
+         "Número de empresas" = ...3,
+         "Custos e despesas - total" = ...4,
+         "Custos e despesas - gastos de pessoal - total" = ...5,
+         "Compras de matérias-primas, materiais auxiliares e componentes" = ...6,
+         "Custo das mercadorias adquiridas para revenda" = ...7,
+         "Estoques de produtos acabados e em elaboração em 31/12 do ano anterior" = ...8,
+         "Estoques de produtos acabados e em elaboração em 31/12 do ano de referência" = ...9,
+         "Estoque de matérias-primas e mercadorias para revenda do ano anterior" = ...10,
+         "Estoque de matérias-primas e mercadorias para revenda do ano de referência" = ...11,
+         "Custos diretos da produção - total" = ...12,
+         "Consumo de combustíveis usados para acionar maquinaria" = ...13,
+         "Compra de energia elétrica utilizada na produção" = ...14,
+         "Consumo de peças, acessórios e pequenas ferramentas" = ...15,
+         "Serviços industriais prestados por terceiros" = ...16,
+         "Serviços de manutenção e reparação de máquinas e equipamentos ligados à produção prestados por terceiros" = ...17,
+         "Outros custos e despesas - total" = ...22,
+         "Aluguéis e arrendamentos" = ...23,
+         "Despesas com arrendamento mercantil" = ...24,
+         "Depreciação, amortização e exaustão" = ...25,
+         "Despesas com propaganda" = ...26,
+         "Fretes e carretos" = ...27,
+         "Impostos e taxas" = ...28,
+         "Prêmios de seguros" = ...29,
+         "Variações monetárias passivas" = ...30,
+         "Despesas financeiras" = ...31,
+         "Resultados negativos de participações societárias e em sociedade em cota de participação" = ...32,
+         "Serviços prestados por terceiros" = ...33,
+         "Despesas com vendas, inclusive comissões" = ...34,
+         "Água e esgoto" = ...35,
+         "Viagens e representações" = ...36,
+         "Demais custos e despesas operacionais" = ...40,
+         "Despesas não-operacionais" = ...41,
+         "Royalties e assistência técnica - número de informantes" = ...42,
+         "Royalties e assistência técnica - valor" = ...43)
+
+tab7245sidra <- get_sidra(api = "/t/7245/n1/all/v/all/p/all/c12762/117120") %>% 
+  select(Ano, Variável, "Classificação Nacional de Atividades Econômicas (CNAE 2.0)", Valor) %>% 
+  spread(Variável, Valor)
+
+tab7245 <- bind_rows(tab7245xls,tab7245sidra)      
+
+#Análise do setor (cálculos aproximados)
+tab1 <- bind_cols(tab7241,tab7242,tab7243,tab7244,tab7245) %>% 
+  select(-"Classificação Nacional de Atividades Econômicas (CNAE 2.0)...17", -"Número de empresas...18", -Ano...34, -"Classificação Nacional de Atividades Econômicas (CNAE 2.0)...42", -"Número de empresas...43", -Ano...63, -"Classificação Nacional de Atividades Econômicas (CNAE 2.0)...64",-"Número de empresas...65",-Ano...73,-"Classificação Nacional de Atividades Econômicas (CNAE 2.0)...74",-"Número de empresas...75",-Ano...109, -"Receita líquida de vendas - total...40") %>% 
+  rename(Ano = Ano...16, "Classificação Nacional de Atividades Econômicas (CNAE 2.0)" = "Classificação Nacional de Atividades Econômicas (CNAE 2.0)...1", "Número de empresas" = "Número de empresas...2", "Receita líquida de vendas - total" = "Receita líquida de vendas - total...66") %>% 
+  mutate_if(is.character, str_squish) %>% 
+  mutate (Local = "Setor siderúrgico")
+
+tab1[is.na(tab1)] <- 0
+  
+a1 <- tab1 %>% 
+  mutate ("capital variável" = #Capital variável 
+            (`Salários, retiradas e outras remunerações de pessoal assalariado ligado à produção` +
+            `Salários, retiradas e outras remunerações de pessoal assalariado não-ligado à produção` +
+            `Salários, retiradas e outras remunerações de pessoal não-assalariado - proprietários, sócios` +
+            `Gastos com pessoal - benefícios concedidos aos empregados` +
+            `Gastos com pessoal - indenizações trabalhistas` +
+            `Gastos com pessoal - FGTS` +
+            `Gastos com pessoal - contribuições para a previdência social` +
+            `Gastos com pessoal - contribuições para a previdência privada`)*1000) %>% 
+  mutate ("capital constante" = #Capital constante
+          (`Compras de matérias-primas, materiais auxiliares e componentes` +
+          `Custo das mercadorias adquiridas para revenda` + 
+          `Consumo de combustíveis usados para acionar maquinaria` +
+          `Compra de energia elétrica utilizada na produção` +
+          `Consumo de peças, acessórios e pequenas ferramentas` +
+          `Serviços industriais prestados por terceiros` +
+          `Serviços de manutenção e reparação de máquinas e equipamentos ligados à produção prestados por terceiros` +
+          `Aluguéis e arrendamentos` +
+          `Despesas com arrendamento mercantil` +
+          `Depreciação, amortização e exaustão` +
+          `Despesas com propaganda` +
+          `Fretes e carretos` +
+          `Impostos e taxas` +
+          `Prêmios de seguros` +
+          `Variações monetárias passivas` +
+          `Despesas financeiras` +
+          `Resultados negativos de participações societárias e em sociedade em cota de participação` +
+          `Serviços prestados por terceiros` +
+          `Despesas com vendas, inclusive comissões` +
+          `Água e esgoto` +
+          `Viagens e representações` +
+          `Demais custos e despesas operacionais` +
+          `Despesas não-operacionais` +
+          `Royalties e assistência técnica - valor`)*1000) %>% 
+  mutate (receitas = #Receitas
+            (`Receita bruta de vendas de produtos industriais` +
+            `Receita bruta de revenda de mercadorias` +
+            `Receita bruta de prestações de serviços não industriais, de transporte e de atividades agropastoris` +
+            `Receitas por arrendamento e aluguéis de imóveis e equipamentos` +
+            `Receitas financeiras` +
+            `Variações monetárias ativas` +
+            `Total dos resultados positivos em participações societárias e em sociedades em cota de participação` +
+            `Demais receitas operacionais` +
+            `Receitas não-operacionais`)*1000) %>% 
+  mutate(deduções = #Deduções
+           (`Deduções - vendas canceladas` +
+           `Deduções - ICMS` +
+           `Deduções - Demais impostos` +
+           `Deduções - PIS/PASEP`)*1000) %>% 
+  select(Ano, Local, "capital constante", "capital variável", receitas, deduções) %>% 
+  mutate(`composição orgânica do capital` = `capital constante`/`capital variável`) %>% 
+  mutate(maisvalor = receitas - `capital constante` - `capital variável`) %>% 
+  mutate(txmaisvalor = maisvalor / `capital variável`) %>% 
+  mutate(txlucro = maisvalor / (`capital constante` + `capital variável`)) %>% 
+  mutate(trabpago12h = 12 / txmaisvalor) %>% 
+  mutate(trabnpago12h = 12 - trabpago12h) %>% 
+  mutate(trabpago8h = 8 / txmaisvalor) %>% 
+  mutate(trabnpago8h = 8 - trabpago8h) %>% 
+  mutate("remuneração de capitais" = maisvalor - deduções)
+
+write_delim(a1, "pia-empresa.csv", delim = ";")
+
+#USIMINAS
+#Preparação dos dados
+tab2 <- read_xls("Usiminas/Dados/dados-usiminas-valor-adicionado.xls", col_names = TRUE, progress = readxl_progress(), .name_repair = "unique") %>% 
+  gather(Ano, Total, -Categorias) %>% 
+  spread(Categorias, Total) %>% 
+  mutate_if(is.character, str_squish) %>% 
+  mutate (Local = "USIMINAS")
+
+tab2[is.na(tab2)] <- 0
+
+#Análise da USIMINAS (cálculos aproximados)
+a2 <- tab2 %>% 
+  mutate ("capital variável" = #Capital variável 
+            (`Salários e encargos` +
+            `Encargos previdenciários` +
+            `Previdência privada` + 
+            `Benefícios` + 
+            `Comissão de vendas / outros` + 
+            `FGTS` + 
+            `Remuneração da Administração` + 
+            `Participação dos empregados nos lucros` + 
+            `Planos de Aposentadoria`)*1000) %>% 
+  mutate ("capital constante" = #Capital constante
+            (`Matérias-primas consumidas` + 
+            `Custo dos produtos, das mercadorias e dos serviços vendidos` +
+            `Materiais, energia, serviços de terceiros e outros` +
+            `Recuperação (perda) de valores ativos` +
+            `Depreciação, amortização e exaustão`)*1000) %>% 
+  mutate (receitas = #Receitas
+          (`Venda de mercadorias, produtos e serviços` + 
+          `Constituição (reversão) de provisão para créditos de liquidação duvidosa` +
+          `Resultado não operacional` +
+          `Outras receitas` +
+          `Participação no resultado de controladas, controladas em conjunto e coligadas` +
+          `Receitas financeiras` +
+          `Participação de acionistas minoritários` + 
+          `Alugueis e royalties` + 
+          `Superávit da Femco`+
+          `Receitas cambiais` +
+          `Ganhos e perdas atuariais`)*1000) %>% 
+  mutate(deduções = #Deduções
+           (`Federais` +
+           `Estaduais` + 
+           `Municipais` + 
+           `Incentivos fiscais`)*1000) %>% 
+  select(Ano, Local, "capital constante", "capital variável", receitas, deduções) %>% 
+  mutate(`composição orgânica do capital` = `capital constante`/`capital variável`) %>% 
+  mutate(maisvalor = receitas - `capital constante` - `capital variável`) %>% 
+  mutate(txmaisvalor = maisvalor / `capital variável`) %>% 
+  mutate(txlucro = maisvalor / (`capital constante` + `capital variável`)) %>% 
+  mutate(trabpago12h = 12 / txmaisvalor) %>% 
+  mutate(trabnpago12h = 12 - trabpago12h) %>% 
+  mutate(trabpago8h = 8 / txmaisvalor) %>% 
+  mutate(trabnpago8h = 8 - trabpago8h) %>% 
+  mutate("remuneração de capitais" = maisvalor - deduções)
+
+write_delim(a2, "usiminas.csv", delim = ";")
+
+#Gráficos
+
+#Composição orgânica do capital no setor siderúrgico e Usiminas entre os anos 2000 e 2022– cálculos aproximados
+bind_rows(a1,a2) %>% 
+  mutate(Ano = as.Date(Ano,"%Y")) %>% 
+  ggplot(aes(x = Ano, y = `composição orgânica do capital`, color = Local, group = Local)) + #composição orgânica do capital
+  geom_line() + 
+  geom_point() +
+  labs(title = "",
+       x = "",
+       y = "",
+       color = "") +
+  theme_minimal(base_size = 10, base_family = "Times") +
+  theme(legend.position = "top", 
+        legend.direction = "horizontal",
+        plot.title = element_text(size = 10, face = "bold"),
+        plot.subtitle = element_text(size = 10),
+        axis.title.y = element_text(size = 10, face = "bold", angle = 90),
+        axis.title.x = element_text(size = 10, face = "bold"),
+        axis.text.x = element_text(angle = 90, size = 10, vjust=0.5),
+        axis.text.y = element_text(size = 10, vjust=0.5),
+        strip.text = element_text (size = 10, face = "bold")) +
+  scale_color_gdocs() + scale_fill_gdocs() +
+  scale_x_date(date_breaks = "1 year", date_labels = "%Y") +
+  facet_wrap(~Local, scales = "free_y")
+ggsave("coc.jpeg", device = "jpeg", width =16, height =12, units = "cm", dpi = 320, bg = "white")
+
+#Mais-valor produzido no setor siderúrgico e Usiminas entre os anos 2000 e 2022 – cálculos aproximados
+bind_rows(a1,a2) %>% 
+  mutate(Ano = as.Date(Ano,"%Y")) %>% 
+  ggplot(aes(x = Ano, y = maisvalor, color = Local, group = Local)) + #maisvalor
+  geom_line() + 
+  geom_point() +
+  labs(title = "",
+       x = "",
+       y = "",
+       color = "") +
+  theme_minimal(base_size = 10, base_family = "Times") +
+  theme(legend.position = "top", 
+        legend.direction = "horizontal",
+        plot.title = element_text(size = 10, face = "bold"),
+        plot.subtitle = element_text(size = 10),
+        axis.title.y = element_text(size = 10, face = "bold", angle = 90),
+        axis.title.x = element_text(size = 10, face = "bold"),
+        axis.text.x = element_text(angle = 90, size = 10, vjust=0.5),
+        axis.text.y = element_text(size = 10, vjust=0.5),
+        strip.text = element_text (size = 10, face = "bold")) +
+  scale_color_gdocs() + scale_fill_gdocs() +
+  scale_x_date(date_breaks = "1 year", date_labels = "%Y") +
+  scale_y_continuous(labels = scales::label_dollar(prefix = "R$ ", suffix = "", big.mark = ".")) 
+  # + facet_wrap(~Local, scales = "free_y") +
+ggsave("maisv.jpeg", device = "jpeg", width =16, height =12, units = "cm", dpi = 320, bg = "white")
+
+#Taxa de mais-valor produzido no setor siderúrgico e Usiminas entre os anos 2000 e 2022 – cálculos aproximados
+bind_rows(a1,a2) %>% 
+  mutate(Ano = as.Date(Ano,"%Y")) %>% 
+  ggplot(aes(x = Ano, y = txmaisvalor, color = Local, group = Local)) + #txmaisvalor
+  geom_line() + 
+  geom_point() +
+  labs(title = "",
+       x = "",
+       y = "",
+       color = "") +
+  theme_minimal(base_size = 10, base_family = "Times") +
+  theme(legend.position = "top", 
+        legend.direction = "horizontal",
+        plot.title = element_text(size = 10, face = "bold"),
+        plot.subtitle = element_text(size = 10),
+        axis.title.y = element_text(size = 10, face = "bold", angle = 90),
+        axis.title.x = element_text(size = 10, face = "bold"),
+        axis.text.x = element_text(angle = 90, size = 10, vjust=0.5),
+        axis.text.y = element_text(size = 10, vjust=0.5),
+        strip.text = element_text (size = 10, face = "bold")) +
+  scale_color_gdocs() + scale_fill_gdocs() +
+  scale_x_date(date_breaks = "1 year", date_labels = "%Y") +
+  scale_y_continuous(labels = scales::label_percent()) 
+  # + facet_wrap(~Local, scales = "free_y") +
+ggsave("tx-maisv.jpeg", device = "jpeg", width =16, height =12, units = "cm", dpi = 320, bg = "white")
+
+#Taxa de lucro produzida no setor siderúrgico e Usiminas entre os anos 2000 e 2022 – cálculos aproximados
+bind_rows(a1,a2) %>% 
+  mutate(Ano = as.Date(Ano,"%Y")) %>% 
+  ggplot(aes(x = Ano, y = txlucro, color = Local, group = Local)) + #txlucro
+  geom_line() + 
+  geom_point() +
+  labs(title = "",
+       x = "",
+       y = "",
+       color = "") +
+  theme_minimal(base_size = 10, base_family = "Times") +
+  theme(legend.position = "top", 
+        legend.direction = "horizontal",
+        plot.title = element_text(size = 10, face = "bold"),
+        plot.subtitle = element_text(size = 10),
+        axis.title.y = element_text(size = 10, face = "bold", angle = 90),
+        axis.title.x = element_text(size = 10, face = "bold"),
+        axis.text.x = element_text(angle = 90, size = 10, vjust=0.5),
+        axis.text.y = element_text(size = 10, vjust=0.5),
+        strip.text = element_text (size = 10, face = "bold")) +
+  scale_color_gdocs() + scale_fill_gdocs() +
+  scale_x_date(date_breaks = "1 year", date_labels = "%Y") +
+  scale_y_continuous(labels = scales::label_percent())
+# + facet_wrap(~Local, scales = "free_y") +
+ggsave("tx-lucro.jpeg", device = "jpeg", width =16, height =12, units = "cm", dpi = 320, bg = "white")
+
+#Horas de trabalho não pagas por jornada de 12h no setor siderúrgico e Usiminas entre os anos 2000 e 2022 (cálculos aproximados)
+bind_rows(a1,a2) %>% 
+  mutate(Ano = as.Date(Ano,"%Y")) %>% 
+  ggplot(aes(x = Ano, y = trabpago12h, color = Local, group = Local)) + #trabpago12h
+  geom_line() + 
+  geom_point() +
+  labs(title = "",
+       x = "",
+       y = "",
+       color = "") +
+  theme_minimal(base_size = 10, base_family = "Times") +
+  theme(legend.position = "top", 
+        legend.direction = "horizontal",
+        plot.title = element_text(size = 10, face = "bold"),
+        plot.subtitle = element_text(size = 10),
+        axis.title.y = element_text(size = 10, face = "bold", angle = 90),
+        axis.title.x = element_text(size = 10, face = "bold"),
+        axis.text.x = element_text(angle = 90, size = 10, vjust=0.5),
+        axis.text.y = element_text(size = 10, vjust=0.5),
+        strip.text = element_text (size = 10, face = "bold")) +
+  scale_color_gdocs() + scale_fill_gdocs() +
+  scale_x_date(date_breaks = "1 year", date_labels = "%Y") +
+  facet_wrap(~Local, scales = "free_y")
+ggsave("trab-n-pago-12.jpeg", device = "jpeg", width =16, height =12, units = "cm", dpi = 320, bg = "white")
+
+#Horas de trabalho não pagas por jornada de 8h no setor siderúrgico e Usiminas entre os anos 2000 e 2022 (cálculos aproximados)
+bind_rows(a1,a2) %>% 
+  mutate(Ano = as.Date(Ano,"%Y")) %>% 
+  ggplot(aes(x = Ano, y = trabnpago8h, color = Local, group = Local)) + #trabpago8h
+  geom_line() + 
+  geom_point() +
+  labs(title = "Horas de trabalho não pagas por jornada de 8h no setor siderúrgico e empresa de estudo 
+entre os anos 2000 e 2022 (cálculos aproximados)",
+       x = "",
+       y = "",
+       color = "") +
+  theme_minimal(base_size = 10, base_family = "Times") +
+  theme(legend.position = "top", 
+        legend.direction = "horizontal",
+        plot.title = element_text(size = 10, face = "bold"),
+        plot.subtitle = element_text(size = 10),
+        axis.title.y = element_text(size = 10, face = "bold", angle = 90),
+        axis.title.x = element_text(size = 10, face = "bold"),
+        axis.text.x = element_text(angle = 90, size = 10, vjust=0.5),
+        axis.text.y = element_text(size = 10, vjust=0.5),
+        strip.text = element_text (size = 10, face = "bold")) +
+  scale_color_gdocs() + scale_fill_gdocs() +
+  scale_x_date(date_breaks = "1 year", date_labels = "%Y") +
+  facet_wrap(~Local, scales = "free_y")
+ggsave("trab-n-pago-8.jpeg", device = "jpeg", width =16, height =12, units = "cm", dpi = 320, bg = "white")
+
+#Remuneração de capitais no setor siderúrgico e Usiminas entre os anos 2000 e 2022 (cálculos aproximados)
+bind_rows(a1,a2) %>% 
+  mutate(Ano = as.Date(Ano,"%Y")) %>% 
+  ggplot(aes(x = Ano, y = `remuneração de capitais`, color = Local, group = Local)) + #remneração de capitais
+  geom_line() + 
+  geom_point() +
+  labs(x = "",
+       y = "",
+       color = "") +
+  theme_minimal(base_size = 10, base_family = "Times") +
+  theme(legend.position = "top", 
+        legend.direction = "horizontal",
+        plot.title = element_text(size = 10, face = "bold"),
+        plot.subtitle = element_text(size = 10),
+        axis.title.y = element_text(size = 10, face = "bold", angle = 90),
+        axis.title.x = element_text(size = 10, face = "bold"),
+        axis.text.x = element_text(angle = 90, size = 10, vjust=0.5),
+        axis.text.y = element_text(size = 10, vjust=0.5),
+        strip.text = element_text (size = 10, face = "bold")) +
+  scale_y_continuous(labels = scales::label_dollar(prefix = "R$ ", big.mark = ".")) +
+  scale_color_gdocs() + scale_fill_gdocs() +
+  scale_x_date(date_breaks = "1 year", date_labels = "%Y") 
+# + facet_wrap(~Local, scales = "free_y") +
+ggsave("renumeracao-capitais.jpeg", device = "jpeg", width =16, height =12, units = "cm", dpi = 320, bg = "white")
