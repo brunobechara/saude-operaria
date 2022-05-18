@@ -1,0 +1,369 @@
+#SINAN - DRT Câncer relacionado ao trabalho
+#CANC - Câncer relacionado ao trabalho
+#https://datasus.saude.gov.br/transferencia-de-arquivos/
+
+#Definição de caso: Todas as doenças, lesões e síndromes que afetam o sistema músculo esquelético, causadas, mantidas ou agravadas  pelo  trabalho  (CID-10  G50-59,  G90-99,  M00-99).  Em  geral  caracteriza-se  pela  ocorrência  de  vários  sintomas inespecíficos,  concomitantes  ou  não,  que  podem  aparecer  aos  poucos,  tais  como  dor  crônica,  parestesia,  fadiga  muscular, manifestando-se principalmente no pescoço, coluna vertebral, cintura escapular, membros superiores ou inferiores
+
+#CNAE 1.0 27000 a 28999
+#Metalurgia e fabricação de produtos de metal, exceto máquinas e equipamentos em MG, MRS Vale do Aço, Vale do Aço por ano entre 15 e 59 anos
+
+#Seleção do armazenamento dos dados
+setwd("~/Documentos/Banco de dados/Dados/")
+
+#Carregamento dos pacotes
+library(read.dbc) #pacote para leitura de arquivos.dbc
+library(foreign) #pacote para manipulação de tabelas.dbf
+library(dplyr) #pacote para manipulação de tabelas
+library(tidyverse) #pacote para manipulação de tabelas
+library(lubridate) #pacote para manipulação de datas
+library(xda) #pacote para análises estatísticas descritivas
+library(gt) #pacote para definição de tabelas
+library(gtsummary) #pacote para definição de tabelas
+library(ggplot2) #pacote para definição de gráficos
+library(ggsci) #pacote para definição de gráficos
+library(ggpubr) #pacote para definição de gráficos
+library(ggthemes) #pacote para definição de gráficos
+library(patchwork) #pacote para definição de gráficos
+
+#Carregamento dos dados
+d2007 <- read.dbc(file = "Ministério da Saúde/SINAN/Dados/Cânceres relacionados ao trabalho/CANCBR07.dbc", as.is = TRUE)
+d2008 <- read.dbc(file = "Ministério da Saúde/SINAN/Dados/Cânceres relacionados ao trabalho/CANCBR08.dbc", as.is = TRUE)
+d2009 <- read.dbc(file = "Ministério da Saúde/SINAN/Dados/Cânceres relacionados ao trabalho/CANCBR09.dbc", as.is = TRUE) 
+d2010 <- read.dbc(file = "Ministério da Saúde/SINAN/Dados/Cânceres relacionados ao trabalho/CANCBR10.dbc", as.is = TRUE) 
+d2011 <- read.dbc(file = "Ministério da Saúde/SINAN/Dados/Cânceres relacionados ao trabalho/CANCBR11.dbc", as.is = TRUE) 
+d2012 <- read.dbc(file = "Ministério da Saúde/SINAN/Dados/Cânceres relacionados ao trabalho/CANCBR12.dbc", as.is = TRUE) 
+d2013 <- read.dbc(file = "Ministério da Saúde/SINAN/Dados/Cânceres relacionados ao trabalho/CANCBR13.dbc", as.is = TRUE)
+d2014 <- read.dbc(file = "Ministério da Saúde/SINAN/Dados/Cânceres relacionados ao trabalho/CANCBR14.dbc", as.is = TRUE)
+d2015 <- read.dbc(file = "Ministério da Saúde/SINAN/Dados/Cânceres relacionados ao trabalho/CANCBR15.dbc", as.is = TRUE)
+d2016 <- read.dbc(file = "Ministério da Saúde/SINAN/Dados/Cânceres relacionados ao trabalho/CANCBR16.dbc", as.is = TRUE)
+d2017 <- read.dbc(file = "Ministério da Saúde/SINAN/Dados/Cânceres relacionados ao trabalho/CANCBR17.dbc", as.is = TRUE)
+d2018 <- read.dbc(file = "Ministério da Saúde/SINAN/Dados/Cânceres relacionados ao trabalho/CANCBR18.dbc", as.is = TRUE) #dados preliminares
+d2019 <- read.dbc(file = "Ministério da Saúde/SINAN/Dados/Cânceres relacionados ao trabalho/CANCBR19.dbc", as.is = TRUE) #dados preliminares
+d2020 <- read.dbc(file = "Ministério da Saúde/SINAN/Dados/Cânceres relacionados ao trabalho/CANCBR20.dbc", as.is = TRUE) #dados preliminares
+d2021 <- read.dbc(file = "Ministério da Saúde/SINAN/Dados/Cânceres relacionados ao trabalho/CANCBR21.dbc", as.is = TRUE) #dados preliminares
+d2022 <- read.dbc(file = "Ministério da Saúde/SINAN/Dados/Cânceres relacionados ao trabalho/CANCBR22.dbc", as.is = TRUE) #dados preliminares
+
+#Apresentação dos dados totais com seleção de dados
+dtotais <- bind_rows(d2007, d2008, d2009, d2010, d2011, d2012, d2013, d2014, d2015, d2016, d2017, d2018, d2019) %>% 
+  select(ID_AGRAVO, #identificação do agravo
+         DT_NOTIFIC, #data da notificação
+         NU_ANO, #ano da notificação
+         SG_UF_NOT, #uf Notificante
+         ID_MUNICIP, #município notificante
+         ID_UNIDADE, #unidade de saúde notificante
+         DT_DIAG, #data do diagnóstico
+         NU_IDADE_N, #idade
+         CS_SEXO, #sexo
+         CS_GESTANT, #gestante
+         CS_RACA, #raça/cor
+         CS_ESCOL_N, #escolaridade
+         SG_UF, #uf de residência
+         ID_MN_RESI, #municipio de residência
+         ID_OCUPA_N, #dados complementares do caso #ocupação                                  
+         SIT_TRAB, #situação no mercado de trabalho
+         NUTEMPO, #tempo de trabalho na ocupação               
+         TPTEMPO, #tipo de tempo de trabalho na ocupação
+         CNAE, #atividade econômica                             
+         UF_EMP, #uf da empresa
+         MUN_EMP, #município da empresa
+         TERCEIRIZA, #empresa terceirizada
+         CNAE, #cnae empresa principal
+         NUTEMPORIS, #tempo de exposição ao agente de risco
+         TPTEMPORIS, #tempo de exposição ao agente de risco
+         REGIME, #regime do tratamento
+         DIAG_ESP, #diagnóstico especifico
+         ASBESTO,
+         SILICA,
+         AMINA,
+         BENZENO,
+         ALCATRAO,
+         HIDROCARBO,
+         OLEOS,
+         BERILIO,
+         CADMIO,
+         CROMO,
+         NIQUEL,
+         IONIZANTES,
+         NAO_IONIZA, 
+         HORMONIO,
+         NEOPLASICO,
+         OUTRO_EXP,
+         OUT_EXP_DE,
+         FUMA,
+         TRAB_DOE, #Há ou houve outros trabalhadores com a mesma doença no local de trabalho
+         EVOLUCAO, #conclusão #evolução do caso
+         DT_OBITO, #data do óbito
+         CAT) %>%  #emissão de cat 
+  mutate(DIAG_ESP = substr(DIAG_ESP, 1,3)) %>% #adequação do dado
+  mutate(NU_IDADE_N = substr(NU_IDADE_N, 3,4)) %>% 
+  mutate(NU_IDADE_N = as.integer(NU_IDADE_N)) %>% 
+  separate(DT_DIAG, sep = "-", into = c("ANO_DIAG", "MES_DIAG", "DIA_DIAG")) %>% #separação de dado
+  filter(ANO_DIAG >= "2007") %>% #seleção de ano
+  filter(SG_UF_NOT == "31") %>% #seleção de transtornos mentais relacionados ao trabalho em Minas Gerais
+  filter(between(NU_IDADE_N, "15", "59")) %>%  #seleção de faixa etária
+  filter(between(CNAE, "27000", "28999") | is.na(CNAE)) #seleção do setor econômico (CNAE1.0): Metalurgia e Fabricação de produtos de metal, exceto máquinas e equipamentos
+
+#Codificação e a dequação dos dados a partir do dicionário de variáveis
+dtotais$CAT <- factor(dtotais$CAT, levels = c("1","2","3","9"), labels = c("Sim", "Não", "Não se aplica", "Ignorado"))
+dtotais$CS_SEXO <- factor(dtotais$CS_SEXO, levels = c("","I","M","F"), labels = c("Em Branco", "Ignorado", "Masculino", "Feminino"))
+dtotais$CS_GESTANT <- factor(dtotais$CS_GESTANT, levels = c("1","2","3","4","5","6","9"), labels = c("1ºTrimestre", "2ºTrimestre", "3ºTrimestre", "Idade gestacional Ignorada", "Não", "Não se aplica", "Ignorado"))
+dtotais$CS_RACA <- factor(dtotais$CS_RACA, levels = c("1","2","3","4","5","9"), labels = c("Branca", "Preta", "Amarela", "Parda","Indígena","Ignorado"))
+dtotais$CS_ESCOL_N <- factor(dtotais$CS_ESCOL_N , levels = c("00", "01","02","03","04","05","06","07","08","09","10"), labels = c("Analfabeto", "1ª a 4ª série incompleta do EF (antigo primário ou 1º grau)", "4ª série completa do EF (antigo primário ou 1º grau)", "5ª à 8ª série incompleta do EF (antigo ginásio ou 1º grau)", "Ensino fundamental completo (antigo ginásio ou 1º grau)", "Ensino médio incompleto (antigo colegial  ou 2º grau )", "Ensino médio completo (antigo colegial  ou 2º grau )", "Educação superior incompleta", "Educação superior completa", "Ignorado", "Não se aplica"))
+dtotais$EVOLUCAO <- factor(dtotais$EVOLUCAO, levels = c("1","2","3","4","5","6","7","9"), labels = c("Cura", "Incapacidade temporária", "Incapacidade parcial permanente", "Incapacidade total permanente", "Óbito por acidente de trabalho grave", "Óbito por outras causas", "Outro", "Ignorado"))
+dtotais$ID_AGRAVO <- factor(dtotais$ID_AGRAVO, levels = c("C80"), labels = c("Neoplasia maligna, sem especificação de localização"))
+dtotais$REGIME <- factor(dtotais$REGIME, levels = c("1","2"), labels = c("Hospitalar", "Ambulatório"))
+dtotais$TERCEIRIZA <- factor(dtotais$TERCEIRIZA, levels = c("1","2","3","9"), labels = c("Sim", "Não", "Não se aplica", "Ignorado"))
+dtotais$TPTEMPO <- factor(dtotais$TPTEMPO, levels = c("1","2","3","4"), labels = c("horas", "dias", "meses", "anos"))
+dtotais$TRAB_DOE <- factor(dtotais$TRAB_DOE, levels = c("1","2","9"), labels = c("Sim", "Não", "Ignorado"))
+dtotais$SIT_TRAB <- factor(dtotais$SIT_TRAB, levels = c("01","02","03","04","05","06","07","08","09","10","11","12","99"), labels = c("Empregado registrado com carteira assinada", "Empregado não registrado", "Autônomo/conta própria", "Servidor público estatuário", "Servidor público celetista", "Aposentado", "Desempregado", "Trabalho temporário", "Cooperativado", "Trabalhador avulso", "Empregador", "Outros", "Ignorado"))
+dtotais$HIPERTEN  <- factor(dtotais$HIPERTEN , levels = c("1","2","9"), labels = c("Sim", "Não","Ignorado"))
+dtotais$ASBESTO <- factor(dtotais$ASBESTO, levels = c("1","2","9"), labels = c("Sim", "Não","Ignorado"))
+dtotais$CADMIO <- factor(dtotais$CADMIO, levels = c("1","2","9"), labels = c("Sim", "Não","Ignorado"))
+dtotais$SILICA <- factor(dtotais$SILICA, levels = c("1","2","9"), labels = c("Sim", "Não","Ignorado"))
+dtotais$CROMO <- factor(dtotais$CROMO, levels = c("1","2","9"), labels = c("Sim", "Não","Ignorado"))
+dtotais$AMINA  <- factor(dtotais$AMINA, levels = c("1","2","9"), labels = c("Sim", "Não","Ignorado"))
+dtotais$NIQUEL <- factor(dtotais$NIQUEL, levels = c("1","2","9"), labels = c("Sim", "Não","Ignorado"))
+dtotais$BENZENO <- factor(dtotais$BENZENO, levels = c("1","2","9"), labels = c("Sim", "Não","Ignorado"))
+dtotais$IONIZANTES <- factor(dtotais$IONIZANTES , levels = c("1","2","9"), labels = c("Sim", "Não","Ignorado"))
+dtotais$NAO_IONIZA <- factor(dtotais$NAO_IONIZA, levels = c("1","2","9"), labels = c("Sim", "Não","Ignorado"))
+dtotais$HIDROCARBO <- factor(dtotais$HIDROCARBO, levels = c("1","2","9"), labels = c("Sim", "Não","Ignorado"))
+dtotais$HORMONIO <- factor(dtotais$HORMONIO, levels = c("1","2","9"), labels = c("Sim", "Não","Ignorado"))
+dtotais$OLEOS <- factor(dtotais$OLEOS, levels = c("1","2","9"), labels = c("Sim", "Não","Ignorado"))
+dtotais$NEOPLASICO <- factor(dtotais$NEOPLASICO, levels = c("1","2","9"), labels = c("Sim", "Não","Ignorado"))
+dtotais$BERILIO  <- factor(dtotais$BERILIO, levels = c("1","2","9"), labels = c("Sim", "Não","Ignorado"))
+dtotais$OUTRO_EXP <- factor(dtotais$OUTRO_EXP, levels = c("1","2","9"), labels = c("Sim", "Não","Ignorado"))
+dtotais$FUMA <- factor(dtotais$FUMA, levels = c("1","2","3", "9"), labels = c("Sim", "Não", "Ex-fumante", "Ignorado"))
+
+#Carregamento de arquivos para definição dos dados
+#DATASUS
+CID10 <- read.csv2(file = "Ministério da Saúde/SINAN/Tabulação/CID10LER.csv", sep = ";", colClasses = "character")
+CNAE <- read.csv2(file = "Ministério da Saúde/SINAN/Tabulação/CNAENET.csv", sep = ";", colClasses = "character")
+MGMRSMUN <- read.csv2(file = "Ministério da Saúde/SINAN/Tabulação/MGMRSMUNMENT.csv", sep = ";", colClasses = "character")
+OCUPACAO <- read.csv2(file = "Ministério da Saúde/SINAN/Tabulação/OCUPANET.csv", sep = ";", colClasses = "character")
+UF <- read.csv2(file = "Ministério da Saúde/SINAN/Tabulação/UFcodigo.csv", sep = ";", colClasses = "character")
+UNIDANOT <- read.csv2(file = "Ministério da Saúde/SINAN/Tabulação/UNIDANET.csv", sep = ";", colClasses = "character")
+
+#Delimitação da base de dados do estudo
+BASE <- dtotais %>% #junção de variáveis
+  left_join(CID10, "DIAG_ESP") %>% 
+  left_join(CNAE, "CNAE") %>% 
+  left_join(MGMRSMUN, "ID_MN_RESI") %>% 
+  left_join(OCUPACAO, "ID_OCUPA_N") %>% 
+  left_join(UF, "UF_EMP") %>% 
+  left_join(UNIDANOT, "ID_UNIDADE")
+
+glimpse(BASE) #visualização das variáves e dados
+
+#conferencia dos dados
+charSummary(BASE)
+
+#análise exloratória dos dados
+summary(BASE)
+numSummary(BASE)
+
+#Tabelas e gráficos para análise
+#Tabelas
+theme_gtsummary_language(language = c("pt")) 
+reset_gtsummary_theme()
+
+tbl1 <- BASE %>% #Vale do Aço
+  filter(between(CNAE, "27000", "28999")) %>%
+  filter(ID_MN_RESI == "313130" | ID_MN_RESI == "316870" | ID_MN_RESI == "311940") %>% 
+  select(ANO_DIAG, MRS, OCUPACA, NU_IDADE_N,CS_SEXO,CS_ESCOL_N,CS_GESTANT,CS_RACA,SIT_TRAB,TRAB_DOE,REGIME,DIAG_ESP,ASBESTO,SILICA,AMINA,BENZENO,ALCATRAO,HIDROCARBO,OLEOS,BERILIO,CADMIO,CROMO,NIQUEL,IONIZANTES,NAO_IONIZA,HORMONIO,NEOPLASICO,OUTRO_EXP,OUT_EXP_DE,FUMA,EVOLUCAO,CAT,UNIDADENOT,UF_EMPRESA,CNAE_CLASSE,TERCEIRIZA) %>% 
+  tbl_summary(by = ANO_DIAG,
+              label = list(ANO_DIAG ~ "Ano do diagnóstico", 
+                           MRS ~ "Macrorregião de Saúde", 
+                           OCUPACA ~ "Ocupação",
+                           NU_IDADE_N ~"Idade",
+                           CS_SEXO ~ "Sexo",
+                           CS_ESCOL_N ~"Escolaridade",
+                           CS_GESTANT ~ "Gestantes",
+                           CS_RACA ~ "Raça/Cor",
+                           SIT_TRAB ~ "Situação do trabalho",
+                           TRAB_DOE ~ "Outros trabalhadores com a mesma doença no trabalho",
+                           REGIME ~ "Tipo de atendimento",
+                           DIAG_ESP ~ "CID do diagnóstico",
+                           ASBESTO ~ "Exposição a asbesto",
+                           SILICA ~ "Exposição a silica",
+                           AMINA ~ "Exposição a amina",
+                           BENZENO ~ "Exposição a benzeno",
+                           ALCATRAO ~ "Exposição a alcatrão",
+                           HIDROCARBO ~ "Exposição a hidrocarboneto",
+                           OLEOS ~ "Exposição a óleos",
+                           BERILIO ~ "Exposição a berílio",
+                           CADMIO ~ "Exposição a cádmio",
+                           CROMO ~ "Exposição a cromo",
+                           NIQUEL ~ "Exposição a níquel",
+                           IONIZANTES ~ "Exposição a radiações ionizantes",
+                           NAO_IONIZA ~ "Exposição a radiações não ionizantes",
+                           HORMONIO ~ "Exposição a hormônios",
+                           NEOPLASICO ~ "Exposição a antineoplásicos",
+                           OUTRO_EXP ~ "Exposição a outros",
+                           OUT_EXP_DE ~ "Outras exposições",
+                           FUMA ~ "Hábito de fumar",
+                           EVOLUCAO ~ "Evolução do caso",
+                           CAT ~ "Abertura de CAT",
+                           UNIDADENOT ~ "Unidade notificante",
+                           UF_EMPRESA ~ "UF da Empresa",
+                           CNAE_CLASSE ~ "Atividade econômica da empresa (CNAE1.0)",
+                           TERCEIRIZA ~ "Empresa terceirizada"),
+              type = list(ANO_DIAG ~ "categorical", 
+                          MRS ~ "categorical", 
+                          OCUPACA ~ "categorical",
+                          NU_IDADE_N ~ "continuous2",
+                          CS_SEXO ~ "categorical",
+                          CS_ESCOL_N ~ "categorical",
+                          CS_GESTANT ~ "categorical",
+                          CS_RACA ~ "categorical",
+                          SIT_TRAB ~ "categorical",
+                          TRAB_DOE ~ "categorical",
+                          REGIME ~ "categorical",
+                          DIAG_ESP ~ "categorical",
+                          ASBESTO ~ "categorical",
+                          SILICA ~ "categorical",
+                          AMINA ~ "categorical",
+                          BENZENO ~ "categorical",
+                          ALCATRAO ~ "categorical",
+                          HIDROCARBO ~ "categorical",
+                          OLEOS ~ "categorical",
+                          BERILIO ~ "categorical",
+                          CADMIO ~ "categorical",
+                          CROMO ~ "categorical",
+                          NIQUEL ~ "categorical",
+                          IONIZANTES ~ "categorical",
+                          NAO_IONIZA ~ "categorical",
+                          HORMONIO ~ "categorical",
+                          NEOPLASICO ~ "categorical",
+                          OUTRO_EXP ~ "categorical",
+                          OUT_EXP_DE ~ "categorical",
+                          FUMA ~ "categorical",
+                          EVOLUCAO ~ "categorical",
+                          CAT ~ "categorical",
+                          UNIDADENOT ~ "categorical",
+                          UF_EMPRESA ~ "categorical",
+                          CNAE_CLASSE ~ "categorical",
+                          TERCEIRIZA ~ "categorical"),
+              missing_text = "Não registrado") %>%
+  modify_header(label = "**Vale do Aço**") %>% 
+  modify_spanning_header(all_stat_cols() ~ "**Ano**") %>% 
+  bold_labels() %>%
+  as_gt() %>% 
+  gt::tab_header(title = md("**Table 1. Acidentes graves**"), subtitle = "no setor de metalurgia e fabricação de produtos de metal no Vale do Aço entre trabalhadores de 15 e 59 anos por ano") %>% 
+  gt::tab_options(heading.align = "left", 
+                  column_labels.border.top.color = "black",
+                  table.font.size = 10, 
+                  heading.title.font.size = 10,
+                  heading.subtitle.font.size = 10, 
+                  column_labels.font.size = 10, 
+                  row_group.font.size = 10, 
+                  stub.font.size = 10,
+                  footnotes.font.size = 10, 
+                  source_notes.font.size = 10) %>% 
+  gt::opt_table_outline() %>% 
+  gt::tab_source_note(md("**Fonte:** Sistema de Informação de Agravos de Notificação (SINAN/DATASUS)")) %>%
+  gt::tab_source_note(md("**Elaboração:** o autor")) %>%
+  gt::cols_align(align = "left")
+
+tbl2 <- BASE %>% 
+  filter(between(CNAE, "27000", "28999")) %>% 
+  group_by(ANO_DIAG) %>% 
+  summarise(CNAE = n()) %>% 
+  mutate(LOCAL = "Minas Gerais") %>% 
+  mutate_if(is.character, str_squish) 
+tbl2 #Minas Gerais
+
+tbl3 <- BASE %>% 
+  filter(is.na(CNAE)) %>% #acidentes graves sem CNAE
+  group_by(ANO_DIAG) %>% 
+  summarise(NCNAE = n()) %>% 
+  mutate(LOCAL = "Minas Gerais") %>% 
+  mutate_if(is.character, str_squish) 
+tbl3 #Minas Gerais
+
+tbl4 <- tbl3 %>% 
+  left_join(tbl2) %>% 
+  mutate(TOTAL = NCNAE+CNAE) %>%
+  rename(ANO = ANO_DIAG) %>% 
+  select(ANO, TOTAL, NCNAE, CNAE, LOCAL) %>% 
+  mutate_if(is.integer, ~replace(., is.na(.), 0))
+tbl4 #Minas Gerais
+
+tbl5 <- BASE %>% 
+  filter(between(CNAE, "27000", "28999")) %>% 
+  group_by(ANO_DIAG, MRS) %>% 
+  summarise(CNAE = n()) %>% 
+  mutate_if(is.character, str_squish) 
+tbl5 #MRS
+
+tbl6 <- BASE %>% 
+  filter(is.na(CNAE)) %>% 
+  group_by(ANO_DIAG, MRS) %>% 
+  summarise(NCNAE = n()) %>% 
+  mutate_if(is.character, str_squish) 
+tbl6 #MRS
+
+tbl7 <- tbl6 %>% 
+  left_join(tbl5, c("ANO_DIAG", "MRS")) %>% 
+  mutate_if(is.integer, ~replace(., is.na(.), 0)) %>% 
+  filter(MRS == "Vale do Aço") %>% 
+  mutate(TOTAL = NCNAE+CNAE, LOCAL = "MRS Vale do Aço") %>%
+  rename(ANO = ANO_DIAG) %>% 
+  select(ANO, TOTAL, NCNAE, CNAE, LOCAL) 
+tbl7 #MRS Vale do Aço
+
+tbl8 <- BASE %>% 
+  filter(between(CNAE, "27000", "28999")) %>% 
+  filter(ID_MN_RESI == "313130" | ID_MN_RESI == "316870" | ID_MN_RESI == "311940") %>% 
+  mutate(LOCAL = "Vale do Aço") %>% 
+  group_by(ANO_DIAG, LOCAL) %>% 
+  summarise(CNAE = n()) %>% 
+  mutate_if(is.character, str_squish) 
+tbl8 #Vale do Aço #dados inexistentes
+
+tbl9 <- BASE %>% 
+  filter(is.na(CNAE)) %>% 
+  filter(ID_MN_RESI == "313130" | ID_MN_RESI == "316870" | ID_MN_RESI == "311940") %>% 
+  mutate(LOCAL = "Vale do Aço") %>% 
+  group_by(ANO_DIAG, LOCAL) %>% 
+  summarise(NCNAE = n()) %>%
+  mutate_if(is.character, str_squish) 
+tbl9 #Vale do Aço
+
+tbl10 <- tbl9 %>% #tbl8 não apresenta dados
+  rename(ANO = ANO_DIAG) %>% 
+  mutate(CNAE = 0) %>% 
+  mutate(TOTAL = NCNAE+CNAE) %>% 
+  select(ANO, TOTAL, NCNAE, CNAE, LOCAL)
+tbl10 #Vale do Aço
+
+tbl11 <- bind_rows(tbl4, tbl7, tbl10)
+
+#Gráficos
+
+#DRT Cancêr relacionado ao trabalho em trabalhadores entre 15 e 59 anos por ano e localidade
+#Fonte: Sistema de Informação de Agravos de Notificação (SINAN/DATASUS) | Elaboração: o autor"
+
+#Notificação de cancêr relacionado ao trabalho em trabalhadores entre 15 e 59 anos do setor de metalurgia e fabricação de produtos de metal, exceto máquinas e equipamentos em Minas Gerais e na Macrorregião de Saúde do Vale do Aço por ano
+tbl11 %>%
+  rename("Sem registro CNAE" = NCNAE, "Metalurgia e fabricação de produtos de metal" = CNAE, "Total de notificações" = TOTAL) %>% 
+  gather(key = "A", value = "CASOS", -ANO, -LOCAL) %>% 
+  rename("Número de notificações" = CASOS) %>% 
+  ggplot(aes(x=ANO, y=`Número de notificações`, group = A, color = A)) + 
+  geom_line() + 
+  labs(#title = "Notificação de cancêr relacionado ao trabalho em trabalhadores entre 15 e 59 anos do setor de metalurgia e fabricação de produtos de metal, exceto máquinas e equipamentos em Minas Gerais e na Macrorregião de Saúde do Vale do Aço por ano",
+       x = "",
+       y = "",
+       color = "") +
+  theme_minimal(base_size = 10, base_family = "Times") +
+  theme(legend.position = "top", 
+        legend.direction = "horizontal",
+        plot.title = element_text(size = 10, face = "bold"),
+        plot.subtitle = element_text(size = 10),
+        axis.title.y = element_text(size = 10, face = "bold", angle = 90),
+        axis.title.x = element_text(size = 10, face = "bold"),
+        axis.text.x = element_text(angle = 90, size = 10, vjust=0.5),
+        axis.text.y = element_text(size = 10, vjust=0.5),
+        strip.text = element_text (size = 10, face = "bold")) +
+  scale_color_gdocs() + scale_fill_gdocs() +
+  facet_wrap(~LOCAL, scales = "free_y")
+ggsave("sinan-cancer.jpeg", width =16, height =12, units = "cm", dpi = 320, bg = "white")
