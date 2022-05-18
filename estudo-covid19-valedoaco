@@ -1,0 +1,641 @@
+#Instituto de Comunicação e Informação Científica e Tecnológica em Saúde (ICICT/FIOCRUZ)
+#https://bigdata-covid19.icict.fiocruz.br/
+
+#FIOCRUZ. Instituto de Comunicação e Informação Científica e Tecnológica em Saúde (ICICT). MonitoraCovid-19. Rio de Janeiro, 2020. Disponível em: https://bigdata-covid19.icict.fiocruz.br/. Acessado em 22/03/2022
+
+#Casos e óbitos acumulados (quantidade)
+#Casos e óbitos acumulados (por 100.000hab)
+#Incidencia de casos
+#Incidencia de óbitos
+#Incidencia de casos (média móvel)
+#Incidencia de óbitos (média móvel)
+#BR: Minas Gerais
+#Macro BR: VALE DO AÇO - MG
+#Mun BR: Coronel Fabriciano
+#Mun BR: Ipatinga
+#Mun BR: Timóteo
+
+#Seleção do armazenamento dos dados
+setwd("~/Documentos/Banco de dados/Dados/")
+
+#Carregamento dos pacotes
+library(readxl) #pacote para leitura de arquivos.xls
+library(read.dbc) #pacote para leitura de arquivos.dbc
+library(foreign) #pacote para manipulação de tabelas.dbf
+library(dplyr) #pacote para manipulação de tabelas
+library(tidyverse) #pacote para manipulação de tabelas
+library(lubridate) #pacote para manipulação de datas
+library(xda) #pacote para análises estatísticas descritivas
+library(gt) #pacote para definição de tabelas
+library(gtsummary) #pacote para definição de tabelas
+library(ggplot2) #pacote para definição de gráficos
+library(ggsci) #pacote para definição de gráficos
+library(ggpubr) #pacote para definição de gráficos
+library(ggthemes) #pacote para definição de gráficos
+library(patchwork) #pacote para definição de gráficos
+
+#Carregamento dos dados
+#Casos acumulados (quantidade)
+d1 <- read.csv(file = "ICICT FIOCRUZ Bigdata-covid19/casos-acumulados-qntd.csv", header = FALSE, sep = ",") 
+d1 <- as.data.frame(t(d1))
+names(d1)
+
+d1 <- d1 %>% rename("Minas Gerais" = "V2", "Vale do Aço" = "V4", "Coronel Fabriciano" = "V6", "Ipatinga" = "V8", "Timóteo" = "V10") 
+d1 <- d1[-1,]
+
+d1a <- d1 %>% 
+  select(V1, "Minas Gerais") %>% 
+  pivot_longer("Minas Gerais") %>% 
+  rename(Data = V1, LOCAL = name, "CASOS" = value) %>%
+  mutate (Data = seq(from=as.Date("2020-03-08"), to=as.Date("2022-05-15"), by="day")) #sempre atualizar
+  
+d1b <- d1 %>% 
+  select(V3, "Vale do Aço") %>% 
+  pivot_longer("Vale do Aço") %>% 
+  rename(Data = V3, LOCAL = name, "CASOS" = value)
+d1b <- d1b[-c(780:799),] #sempre atualizar
+d1b <- d1b %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+
+d1c <- d1 %>% 
+  select(V5, "Coronel Fabriciano") %>% 
+  pivot_longer("Coronel Fabriciano") %>% 
+  rename(Data = V5, LOCAL = name, "CASOS" = value)
+d1c <- d1c[-c(780:799),] 
+d1c <- d1c %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+
+d1d <- d1 %>% 
+  select(V7, "Ipatinga") %>% 
+  pivot_longer("Ipatinga") %>% 
+  rename(Data = V7, LOCAL = name, "CASOS" = value) 
+d1d <- d1d[-c(780:799),] 
+d1d <- d1d %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+
+d1e <- d1 %>% 
+  select(V9, "Timóteo") %>% 
+  pivot_longer("Timóteo") %>% 
+  rename(Data = V9, LOCAL = name, "CASOS" = value) 
+d1e <- d1e[-c(780:799),] 
+d1e <- d1e %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+  
+d1f <- bind_rows(d1a, d1b, d1c, d1d, d1e) %>% 
+  mutate(CASOS = as.numeric(CASOS))
+  
+#Óbitos acumulados (quantidade)
+d2 <- read.csv(file = "ICICT FIOCRUZ Bigdata-covid19/obitos-acumulados-qntd.csv", header = FALSE, sep = ",")
+d2 <- as.data.frame(t(d2))
+names(d2)
+
+d2 <- d2 %>% rename("Minas Gerais" = "V2", "Vale do Aço" = "V4", "Coronel Fabriciano" = "V6", "Ipatinga" = "V8", "Timóteo" = "V10") 
+d2 <- d2[-1,]
+
+d2a <- d2 %>% 
+  select(V1, "Minas Gerais") %>% 
+  pivot_longer("Minas Gerais") %>% 
+  rename(Data = V1, LOCAL = name, "OBITOS" = value) %>%
+  mutate (Data = seq(from=as.Date("2020-03-08"), to=as.Date("2022-05-15"), by="day")) #sempre atualizar
+
+d2b <- d2 %>% 
+  select(V3, "Vale do Aço") %>% 
+  pivot_longer("Vale do Aço") %>% 
+  rename(Data = V3, LOCAL = name, "OBITOS" = value)
+d2b <- d2b[-c(780:799),] #sempre atualizar
+d2b <- d2b %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+
+d2c <- d2 %>% 
+  select(V5, "Coronel Fabriciano") %>% 
+  pivot_longer("Coronel Fabriciano") %>% 
+  rename(Data = V5, LOCAL = name, "OBITOS" = value)
+d2c <- d2c[-c(780:799),] 
+d2c <- d2c %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+
+d2d <- d2 %>% 
+  select(V7, "Ipatinga") %>% 
+  pivot_longer("Ipatinga") %>% 
+  rename(Data = V7, LOCAL = name, "OBITOS" = value) 
+d2d <- d2d[-c(780:799),] 
+d2d <- d2d %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+
+d2e <- d2 %>% 
+  select(V9, "Timóteo") %>% 
+  pivot_longer("Timóteo") %>% 
+  rename(Data = V9, LOCAL = name, "OBITOS" = value) 
+d2e <- d2e[-c(780:799),] 
+d2e <- d2e %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+
+d2f <- bind_rows(d2a, d2b, d2c, d2d, d2e) %>% 
+  mutate(OBITOS = as.numeric(OBITOS))
+
+#Taxa de letalidade
+d3 <- read.csv(file = "ICICT FIOCRUZ Bigdata-covid19/letalidade.csv", header = FALSE, sep = ",")
+d3 <- as.data.frame(t(d3))
+names(d3)
+
+d3 <- d3 %>% rename("Minas Gerais" = "V2", "Vale do Aço" = "V4", "Coronel Fabriciano" = "V6", "Ipatinga" = "V8", "Timóteo" = "V10") 
+d3 <- d3[-1,]
+
+d3a <- d3 %>% 
+  select(V1, "Minas Gerais") %>% 
+  pivot_longer("Minas Gerais") %>% 
+  rename(Data = V1, LOCAL = name, "LETALIDADE%" = value) %>%
+  mutate (Data = seq(from=as.Date("2020-03-08"), to=as.Date("2022-05-15"), by="day")) #sempre atualizar
+
+d3b <- d3 %>% 
+  select(V3, "Vale do Aço") %>% 
+  pivot_longer("Vale do Aço") %>% 
+  rename(Data = V3, LOCAL = name, "LETALIDADE%" = value)
+d3b <- d3b[-c(780:799),] #sempre atualizar
+d3b <- d3b %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+
+d3c <- d3 %>% 
+  select(V5, "Coronel Fabriciano") %>% 
+  pivot_longer("Coronel Fabriciano") %>% 
+  rename(Data = V5, LOCAL = name, "LETALIDADE%" = value)
+d3c <- d3c[-c(780:799),] 
+d3c <- d3c %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+
+d3d <- d3 %>% 
+  select(V7, "Ipatinga") %>% 
+  pivot_longer("Ipatinga") %>% 
+  rename(Data = V7, LOCAL = name, "LETALIDADE%" = value) 
+d3d <- d3d[-c(780:799),] 
+d3d <- d3d %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+
+d3e <- d3 %>% 
+  select(V9, "Timóteo") %>% 
+  pivot_longer("Timóteo") %>% 
+  rename(Data = V9, LOCAL = name, "LETALIDADE%" = value) 
+d3e <- d3e[-c(780:799),] 
+d3e <- d3e %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+
+d3f <- bind_rows(d3a, d3b, d3c, d3d, d3e) %>% 
+  mutate(`LETALIDADE%` = as.numeric(`LETALIDADE%`))
+
+#Casos acumulados por 100khab
+d4 <- read.csv(file = "ICICT FIOCRUZ Bigdata-covid19/casos-acumulados-100khab.csv", header = FALSE, sep = ",")
+d4 <- as.data.frame(t(d4))
+names(d4)
+
+d4 <- d4 %>% rename("Minas Gerais" = "V2", "Vale do Aço" = "V4", "Coronel Fabriciano" = "V6", "Ipatinga" = "V8", "Timóteo" = "V10") 
+d4 <- d4[-1,]
+
+d4a <- d4 %>% 
+  select(V1, "Minas Gerais") %>% 
+  pivot_longer("Minas Gerais") %>% 
+  rename(Data = V1, LOCAL = name, "CASOS100k" = value) %>%
+  mutate (Data = seq(from=as.Date("2020-03-08"), to=as.Date("2022-05-15"), by="day")) #sempre atualizar
+
+d4b <- d4 %>% 
+  select(V3, "Vale do Aço") %>% 
+  pivot_longer("Vale do Aço") %>% 
+  rename(Data = V3, LOCAL = name, "CASOS100k" = value)
+d4b <- d4b[-c(780:799),] 
+d4b <- d4b %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+
+d4c <- d4 %>% 
+  select(V5, "Coronel Fabriciano") %>% 
+  pivot_longer("Coronel Fabriciano") %>% 
+  rename(Data = V5, LOCAL = name, "CASOS100k" = value)
+d4c <- d4c[-c(780:799),] 
+d4c <- d4c %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+
+d4d <- d4 %>% 
+  select(V7, "Ipatinga") %>% 
+  pivot_longer("Ipatinga") %>% 
+  rename(Data = V7, LOCAL = name, "CASOS100k" = value) 
+d4d <- d4d[-c(780:799),] 
+d4d <- d4d %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+
+d4e <- d4 %>% 
+  select(V9, "Timóteo") %>% 
+  pivot_longer("Timóteo") %>% 
+  rename(Data = V9, LOCAL = name, "CASOS100k" = value) 
+d4e <- d4e[-c(780:799),] 
+d4e <- d4e %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+
+d4f <- bind_rows(d4a, d4b, d4c, d4d, d4e) %>% 
+  mutate(CASOS100k= as.numeric(CASOS100k))
+
+#Óbitos acumulados por 100khab
+d5 <- read.csv(file = "ICICT FIOCRUZ Bigdata-covid19/obitos-acumulados-100khab.csv", header = FALSE, sep = ",")
+d5 <- as.data.frame(t(d5))
+names(d5)
+
+d5 <- d5 %>% rename("Minas Gerais" = "V2", "Vale do Aço" = "V4", "Coronel Fabriciano" = "V6", "Ipatinga" = "V8", "Timóteo" = "V10") 
+d5 <- d5[-1,]
+
+d5a <- d5 %>% 
+  select(V1, "Minas Gerais") %>% 
+  pivot_longer("Minas Gerais") %>% 
+  rename(Data = V1, LOCAL = name, "OBITOS100k" = value) %>%
+  mutate (Data = seq(from=as.Date("2020-03-08"), to=as.Date("2022-05-15"), by="day")) #sempre atualizar
+
+d5b <- d5 %>% 
+  select(V3, "Vale do Aço") %>% 
+  pivot_longer("Vale do Aço") %>% 
+  rename(Data = V3, LOCAL = name, "OBITOS100k" = value)
+d5b <- d5b[-c(780:799),] 
+d5b <- d5b %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+
+d5c <- d5 %>% 
+  select(V5, "Coronel Fabriciano") %>% 
+  pivot_longer("Coronel Fabriciano") %>% 
+  rename(Data = V5, LOCAL = name, "OBITOS100k" = value)
+d5c <- d5c[-c(780:799),] 
+d5c <- d5c %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+
+d5d <- d5 %>% 
+  select(V7, "Ipatinga") %>% 
+  pivot_longer("Ipatinga") %>% 
+  rename(Data = V7, LOCAL = name, "OBITOS100k" = value) 
+d5d <- d5d[-c(780:799),] 
+d5d <- d5d %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+
+d5e <- d5 %>% 
+  select(V9, "Timóteo") %>% 
+  pivot_longer("Timóteo") %>% 
+  rename(Data = V9, LOCAL = name, "OBITOS100k" = value) 
+d5e <- d5e[-c(780:799),] 
+d5e <- d5e %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+
+d5f <- bind_rows(d5a, d5b, d5c, d5d, d5e) %>% 
+  mutate(OBITOS100k = as.numeric(OBITOS100k))
+
+#Incidência de casos
+d6 <- read.csv(file = "ICICT FIOCRUZ Bigdata-covid19/incidencia-casos.csv", header = FALSE, sep = ",")
+d6 <- as.data.frame(t(d6))
+names(d6)
+
+d6 <- d6 %>% rename("Minas Gerais" = "V2", "Vale do Aço" = "V4", "Coronel Fabriciano" = "V6", "Ipatinga" = "V8", "Timóteo" = "V10") 
+d6 <- d6[-1,]
+
+d6a <- d6 %>% 
+  select(V1, "Minas Gerais") %>% 
+  pivot_longer("Minas Gerais") %>% 
+  rename(Data = V1, LOCAL = name, "INCID_CASOS" = value) %>%
+  mutate (Data = seq(from=as.Date("2020-03-08"), to=as.Date("2022-05-15"), by="day")) #sempre atualizar
+
+d6b <- d6 %>% 
+  select(V3, "Vale do Aço") %>% 
+  pivot_longer("Vale do Aço") %>% 
+  rename(Data = V3, LOCAL = name, "INCID_CASOS" = value)
+d6b <- d6b[-c(780:799),] 
+d6b <- d6b %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+
+d6c <- d6 %>% 
+  select(V5, "Coronel Fabriciano") %>% 
+  pivot_longer("Coronel Fabriciano") %>% 
+  rename(Data = V5, LOCAL = name, "INCID_CASOS" = value)
+d6c <- d6c[-c(780:799),] 
+d6c <- d6c %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+
+d6d <- d6 %>% 
+  select(V7, "Ipatinga") %>% 
+  pivot_longer("Ipatinga") %>% 
+  rename(Data = V7, LOCAL = name, "INCID_CASOS" = value) 
+d6d <- d6d[-c(780:799),] 
+d6d <- d6d %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+
+d6e <- d6 %>% 
+  select(V9, "Timóteo") %>% 
+  pivot_longer("Timóteo") %>% 
+  rename(Data = V9, LOCAL = name, "INCID_CASOS" = value) 
+d6e <- d6e[-c(780:799),] 
+d6e <- d6e %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+
+d6f <- bind_rows(d6a, d6b, d6c, d6d, d6e) %>% 
+  mutate(INCID_CASOS = as.numeric(INCID_CASOS))
+
+#Incidência de óbitos
+d7 <- read.csv(file = "ICICT FIOCRUZ Bigdata-covid19/incidencia-obitos.csv", header = FALSE, sep = ",")
+d7 <- as.data.frame(t(d7))
+names(d7)
+
+d7 <- d7 %>% rename("Minas Gerais" = "V2", "Vale do Aço" = "V4", "Coronel Fabriciano" = "V6", "Ipatinga" = "V8", "Timóteo" = "V10") 
+d7 <- d7[-1,]
+
+d7a <- d7 %>% 
+  select(V1, "Minas Gerais") %>% 
+  pivot_longer("Minas Gerais") %>% 
+  rename(Data = V1, LOCAL = name, "INCID_OBITOS" = value) %>%
+  mutate (Data = seq(from=as.Date("2020-03-08"), to=as.Date("2022-05-15"), by="day")) #sempre atualizar
+
+d7b <- d7 %>% 
+  select(V3, "Vale do Aço") %>% 
+  pivot_longer("Vale do Aço") %>% 
+  rename(Data = V3, LOCAL = name, "INCID_OBITOS" = value)
+d7b <- d7b[-c(780:799),] 
+d7b <- d7b %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+
+d7c <- d7 %>% 
+  select(V5, "Coronel Fabriciano") %>% 
+  pivot_longer("Coronel Fabriciano") %>% 
+  rename(Data = V5, LOCAL = name, "INCID_OBITOS" = value)
+d7c <- d7c[-c(780:799),] 
+d7c <- d7c %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+
+d7d <- d7 %>% 
+  select(V7, "Ipatinga") %>% 
+  pivot_longer("Ipatinga") %>% 
+  rename(Data = V7, LOCAL = name, "INCID_OBITOS" = value) 
+d7d <- d7d[-c(780:799),] 
+d7d <- d7d %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+
+d7e <- d7 %>% 
+  select(V9, "Timóteo") %>% 
+  pivot_longer("Timóteo") %>% 
+  rename(Data = V9, LOCAL = name, "INCID_OBITOS" = value) 
+d7e <- d7e[-c(780:799),] 
+d7e <- d7e %>% 
+  mutate (Data = seq(from=as.Date("2020-03-28"), to=as.Date("2022-05-15"), by="day"))
+
+d7f <- bind_rows(d7a, d7b, d7c, d7d, d7e) %>% 
+  mutate(INCID_OBITOS = as.numeric(INCID_OBITOS))
+
+#Indicidência de casos (média móvel)
+d8 <- read.csv(file = "ICICT FIOCRUZ Bigdata-covid19/incidencia-casos-mediamovel.csv", header = FALSE, sep = ",")
+d8 <- as.data.frame(t(d8))
+names(d8)
+
+d8 <- d8 %>% rename("Minas Gerais" = "V2", "Vale do Aço" = "V4", "Coronel Fabriciano" = "V6", "Ipatinga" = "V8", "Timóteo" = "V10") 
+d8 <- d8[-1,]
+
+d8a <- d8 %>% 
+  select(V1, "Minas Gerais") %>% 
+  pivot_longer("Minas Gerais") %>% 
+  rename(Data = V1, LOCAL = name, "MEDMOV_CASOS" = value) %>%
+  mutate (Data = seq(from=as.Date("2020-03-14"), to=as.Date("2022-05-15"), by="day")) 
+
+d8b <- d8 %>% 
+  select(V3, "Vale do Aço") %>% 
+  pivot_longer("Vale do Aço") %>% 
+  rename(Data = V3, LOCAL = name, "MEDMOV_CASOS" = value)
+d8b <- d8b[-c(774:794),] 
+d8b <- d8b %>% 
+  mutate (Data = seq(from=as.Date("2020-04-03"), to=as.Date("2022-05-15"), by="day"))
+
+d8c <- d8 %>% 
+  select(V5, "Coronel Fabriciano") %>% 
+  pivot_longer("Coronel Fabriciano") %>% 
+  rename(Data = V5, LOCAL = name, "MEDMOV_CASOS" = value)
+d8c <- d8c[-c(774:794),] 
+d8c <- d8c %>% 
+  mutate (Data = seq(from=as.Date("2020-04-03"), to=as.Date("2022-05-15"), by="day"))
+
+d8d <- d8 %>% 
+  select(V7, "Ipatinga") %>% 
+  pivot_longer("Ipatinga") %>% 
+  rename(Data = V7, LOCAL = name, "MEDMOV_CASOS" = value) 
+d8d <- d8d[-c(774:794),] 
+d8d <- d8d %>% 
+  mutate (Data = seq(from=as.Date("2020-04-03"), to=as.Date("2022-05-15"), by="day"))
+
+d8e <- d8 %>% 
+  select(V9, "Timóteo") %>% 
+  pivot_longer("Timóteo") %>% 
+  rename(Data = V9, LOCAL = name, "MEDMOV_CASOS" = value) 
+d8e <- d8e[-c(774:794),] 
+d8e <- d8e %>% 
+  mutate (Data = seq(from=as.Date("2020-04-03"), to=as.Date("2022-05-15"), by="day"))
+
+d8f <- bind_rows(d8a, d8b, d8c, d8d, d8e) %>% 
+  mutate(MEDMOV_CASOS = as.numeric(MEDMOV_CASOS))
+ 
+#Indicidência de óbitos (média móvel)
+d9 <- read.csv(file = "ICICT FIOCRUZ Bigdata-covid19/incdencia-obitos-mediamovel.csv", header = FALSE, sep = ",")
+d9 <- as.data.frame(t(d9))
+names(d9)
+
+d9 <- d9 %>% rename("Minas Gerais" = "V2", "Vale do Aço" = "V4", "Coronel Fabriciano" = "V6", "Ipatinga" = "V8", "Timóteo" = "V10") 
+d9 <- d9[-1,]
+
+d9a <- d9 %>% 
+  select(V1, "Minas Gerais") %>% 
+  pivot_longer("Minas Gerais") %>% 
+  rename(Data = V1, LOCAL = name, "MEDMOV_OBITOS" = value) %>%
+  mutate (Data = seq(from=as.Date("2020-03-14"), to=as.Date("2022-05-15"), by="day")) 
+
+d9b <- d9 %>% 
+  select(V3, "Vale do Aço") %>% 
+  pivot_longer("Vale do Aço") %>% 
+  rename(Data = V3, LOCAL = name, "MEDMOV_OBITOS" = value)
+d9b <- d9b[-c(774:794),] 
+d9b <- d9b %>% 
+  mutate (Data = seq(from=as.Date("2020-04-03"), to=as.Date("2022-05-15"), by="day"))
+
+d9c <- d9 %>% 
+  select(V5, "Coronel Fabriciano") %>% 
+  pivot_longer("Coronel Fabriciano") %>% 
+  rename(Data = V5, LOCAL = name, "MEDMOV_OBITOS" = value)
+d9c <- d9c[-c(774:794),] 
+d9c <- d9c %>% 
+  mutate (Data = seq(from=as.Date("2020-04-03"), to=as.Date("2022-05-15"), by="day"))
+
+d9d <- d9 %>% 
+  select(V7, "Ipatinga") %>% 
+  pivot_longer("Ipatinga") %>% 
+  rename(Data = V7, LOCAL = name, "MEDMOV_OBITOS" = value) 
+d9d <- d9d[-c(774:794),] 
+d9d <- d9d %>% 
+  mutate (Data = seq(from=as.Date("2020-04-03"), to=as.Date("2022-05-15"), by="day"))
+
+d9e <- d9 %>% 
+  select(V9, "Timóteo") %>% 
+  pivot_longer("Timóteo") %>% 
+  rename(Data = V9, LOCAL = name, "MEDMOV_OBITOS" = value) 
+d9e <- d9e[-c(774:794),] 
+d9e <- d9e %>% 
+  mutate (Data = seq(from=as.Date("2020-04-03"), to=as.Date("2022-05-15"), by="day"))
+
+d9f <- bind_rows(d9a, d9b, d9c, d9d, d9e) %>% 
+  mutate(MEDMOV_OBITOS = as.numeric(MEDMOV_OBITOS))
+
+#Delimitação da base de dados do estudo
+BASE <- d1f %>% 
+  left_join(d2f) %>% 
+  left_join(d3f) %>% 
+  left_join(d4f) %>% 
+  left_join(d5f) %>% 
+  left_join(d6f) %>% 
+  left_join(d7f) %>% 
+  left_join(d8f) %>% 
+  left_join(d9f)
+BASE[is.na(BASE)] <- 0
+
+#Gráficos
+#Taxa de letalidade da Covid-19 em Minas Gerais e no Vale do Aço
+BASE %>%
+  filter(LOCAL == "Minas Gerais" | LOCAL == "Coronel Fabriciano" | LOCAL == "Ipatinga" | LOCAL == "Timóteo") %>%
+  ggplot() + 
+  geom_line(aes(x=Data, y=`LETALIDADE%`, group = LOCAL, color = LOCAL)) + 
+  labs(#title = "Taxa de letalidade da Covid-19 em Minas Gerais e no Vale do Aço",
+       x = "",
+       y = "",
+       color = "") +
+  theme_minimal(base_size = 10, base_family = "Times") +
+  theme(legend.position = "top", 
+        legend.direction = "horizontal",
+        plot.title = element_text(size = 10, face = "bold"),
+        plot.subtitle = element_text(size = 10),
+        axis.title.y = element_text(size = 10, face = "bold", angle = 90),
+        axis.title.x = element_text(size = 10, face = "bold"),
+        axis.text.x = element_text(angle = 90, size = 10, vjust=0.5),
+        axis.text.y = element_text(size = 10, vjust=0.5),
+        strip.text = element_text (size = 10, face = "bold")) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%Y-%m") +
+  scale_y_continuous(labels = scales::label_number()) +
+  scale_color_gdocs() + scale_fill_gdocs()
+ggsave("covid-letalidade.jpeg", device = "jpeg", width =16, height =12, units = "cm", dpi = 320, bg = "white")
+
+#Casos de Covid-19 por 100mil habitantes em Minas Gerais e no Vale do Aço
+BASE %>%
+  filter(LOCAL == "Minas Gerais" | LOCAL == "Coronel Fabriciano" | LOCAL == "Ipatinga" | LOCAL == "Timóteo") %>% 
+  ggplot() + 
+  geom_line(aes(x=Data, y=CASOS100k, group = LOCAL, color = LOCAL)) + 
+  labs(#title = "Casos de Covid-19 por 100mil habitantes em Minas Gerais e no Vale do Aço",
+       x = "",
+       y = "",
+       color = "") +
+  theme_minimal(base_size = 10, base_family = "Times") +
+  theme(legend.position = "top", 
+        legend.direction = "horizontal",
+        plot.title = element_text(size = 10, face = "bold"),
+        plot.subtitle = element_text(size = 10),
+        axis.title.y = element_text(size = 10, face = "bold", angle = 90),
+        axis.title.x = element_text(size = 10, face = "bold"),
+        axis.text.x = element_text(angle = 90, size = 10, vjust=0.5),
+        axis.text.y = element_text(size = 10, vjust=0.5),
+        strip.text = element_text (size = 10, face = "bold")) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%Y-%m") +
+  scale_y_continuous(labels = scales::label_number()) +
+  scale_color_gdocs() + scale_fill_gdocs()
+ggsave("covid-casos100k.jpeg", device = "jpeg", width =16, height =12, units = "cm", dpi = 320, bg = "white")
+
+#Óbitos por Covid-19 por 100mil habitantes em Minas Gerais e no Vale do Aço
+BASE %>%
+  filter(LOCAL == "Minas Gerais" | LOCAL == "Coronel Fabriciano" | LOCAL == "Ipatinga" | LOCAL == "Timóteo") %>% 
+  ggplot() + 
+  geom_line(aes(x=Data, y=OBITOS100k, group = LOCAL, color = LOCAL)) + 
+  labs(#title = "Óbitos por Covid-19 por 100mil habitantes em Minas Gerais e no Vale do Aço",
+       x = "",
+       y = "",
+       color = "") +
+  theme_minimal(base_size = 10, base_family = "Times") +
+  theme(legend.position = "top", 
+        legend.direction = "horizontal",
+        plot.title = element_text(size = 10, face = "bold"),
+        plot.subtitle = element_text(size = 10),
+        axis.title.y = element_text(size = 10, face = "bold", angle = 90),
+        axis.title.x = element_text(size = 10, face = "bold"),
+        axis.text.x = element_text(angle = 90, size = 10, vjust=0.5),
+        axis.text.y = element_text(size = 10, vjust=0.5),
+        strip.text = element_text (size = 10, face = "bold")) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%Y-%m") +
+  scale_y_continuous(labels = scales::label_number()) +
+  scale_color_gdocs() + scale_fill_gdocs()
+ggsave("covid-obitos100k.jpeg", device = "jpeg", width =16, height =12, units = "cm", dpi = 320, bg = "white")
+
+#Média móvel dos casos de Covid-19 no Vale do Aço
+BASE %>%
+  filter(LOCAL == "Coronel Fabriciano" | LOCAL == "Ipatinga" | LOCAL == "Timóteo") %>%
+  ggplot() + 
+  geom_line(aes(x=Data, y=MEDMOV_CASOS, group = LOCAL, color = LOCAL)) + 
+  labs(#title = "Média móvel dos casos de Covid-19 no Vale do Aço",
+       x = "",
+       y = "",
+       color = "") +
+  theme_minimal(base_size = 10, base_family = "Times") +
+  theme(legend.position = "top", 
+        legend.direction = "horizontal",
+        plot.title = element_text(size = 10, face = "bold"),
+        plot.subtitle = element_text(size = 10),
+        axis.title.y = element_text(size = 10, face = "bold", angle = 90),
+        axis.title.x = element_text(size = 10, face = "bold"),
+        axis.text.x = element_text(angle = 90, size = 10, vjust=0.5),
+        axis.text.y = element_text(size = 10, vjust=0.5),
+        strip.text = element_text (size = 10, face = "bold")) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%Y-%m") +
+  scale_y_continuous(labels = scales::label_number()) +
+  scale_color_gdocs() + scale_fill_gdocs()
+ggsave("covid-medmov-casos.jpeg", device = "jpeg", width =16, height =12, units = "cm", dpi = 320, bg = "white")
+
+#Média móvel dos óbitos por Covid-19 no Vale do Aço
+BASE %>%
+  filter(LOCAL == "Coronel Fabriciano" | LOCAL == "Ipatinga" | LOCAL == "Timóteo") %>% 
+  ggplot() + 
+  geom_line(aes(x=Data, y=MEDMOV_OBITOS, group = LOCAL, color = LOCAL)) + 
+  labs(#title = "Média móvel dos óbitos por Covid-19 no Vale do Aço",
+       x = "",
+       y = "",
+       color = "") +
+  theme_minimal(base_size = 10, base_family = "Times") +
+  theme(legend.position = "top", 
+        legend.direction = "horizontal",
+        plot.title = element_text(size = 10, face = "bold"),
+        plot.subtitle = element_text(size = 10),
+        axis.title.y = element_text(size = 10, face = "bold", angle = 90),
+        axis.title.x = element_text(size = 10, face = "bold"),
+        axis.text.x = element_text(angle = 90, size = 10, vjust=0.5),
+        axis.text.y = element_text(size = 10, vjust=0.5),
+        strip.text = element_text (size = 10, face = "bold")) +
+  scale_x_date(date_breaks = "1 month", date_labels = "%Y-%m") +
+  scale_y_continuous(labels = scales::label_number()) +
+  scale_color_gdocs() + scale_fill_gdocs()
+ggsave("covid-medmov-obitos.jpeg", width =16, height =12, units = "cm", dpi = 320, bg = "white")
+
+#Casos e óbitos por Covid-19 no Vale do Aço
+sapply(BASE, min)
+coeff <- 30
+BASE %>%
+  filter(LOCAL == "Coronel Fabriciano" | LOCAL == "Ipatinga" | LOCAL == "Timóteo") %>% 
+  ggplot() +
+  geom_line(aes(x = Data, y = CASOS), color = "orange") +
+  geom_line(aes(x = Data, y = OBITOS* coeff), color = "red") +
+  labs(#title = "Casos e óbitos por Covid-19 no Vale do Aço",
+       x = "",
+       y = "",
+       color = "") +
+  theme_minimal(base_size = 10, base_family = "Times") +
+  theme(legend.position = "top", 
+        legend.direction = "horizontal",
+        plot.title = element_text(size = 10, face = "bold"),
+        plot.subtitle = element_text(size = 10),
+        axis.title.y = element_text(size = 10, face = "bold", angle = 90),
+        axis.title.x = element_text(size = 10, face = "bold"),
+        axis.text.x = element_text(angle = 90, size = 10, vjust=0.5),
+        axis.text.y = element_text(size = 10, vjust=0.5),
+        strip.text = element_text (size = 10, face = "bold")) +
+  scale_color_gdocs() + scale_fill_gdocs() +
+  scale_x_date(date_breaks = "6 month", date_labels = "%Y-%m") +
+  scale_y_continuous(name = "Casos",
+                     labels = scales::label_number(),
+                     sec.axis = sec_axis(OBITOS ~. / coeff, name = "Óbitos", 
+                                         labels = scales::label_number())) +
+  facet_wrap(~LOCAL, scales = "fixed")
+ggsave("covid-casos-obitos.jpeg", device = "jpeg", width =16, height =12, units = "cm", dpi = 320, bg = "white")
